@@ -1,0 +1,36 @@
+# serverless.yml
+
+service: serverless-flask
+plugins:
+  - serverless-python-requirements
+  - serverless-wsgi
+
+custom:
+  tableName: 'users-table-${self:provider.stage}'
+  wsgi:
+    app: upload.app
+    packRequirements: false
+  pythonRequirements:
+    dockerizePip: non-linux
+  dynamodb:
+    stages:
+      - dev
+    start:
+      migrate: true
+      heapInitial: 200m
+      heapMax: 800m
+
+provider:
+  name: aws
+  runtime: python3.8
+  stage: dev
+  region: eu-west-1
+
+functions:
+  app:
+    handler: wsgi_handler.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
+
+
