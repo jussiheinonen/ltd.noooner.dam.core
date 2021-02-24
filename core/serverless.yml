@@ -12,13 +12,6 @@ custom:
     packRequirements: false
   pythonRequirements:
     dockerizePip: non-linux
-  dynamodb:
-    stages:
-      - dev
-    start:
-      migrate: true
-      heapInitial: 200m
-      heapMax: 800m
 
 provider:
   name: aws
