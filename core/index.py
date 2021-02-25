@@ -1,4 +1,4 @@
-# metaextractor.py
+# index.py
 '''
 Extract metadata from image files
 
