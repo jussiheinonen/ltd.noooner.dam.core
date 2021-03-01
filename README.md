@@ -13,7 +13,7 @@ Local dev environment consists of 2 components
 Serverless WSGI is provided by [Wiren dev environment](https://github.com/jussiheinonen/wiren)
 
 Once Docker image is built you can start the container it by running the command
-`sudo docker run --entrypoint /bin/bash -v $(pwd)/core:/usr/app/core --net=host -it wiren:alpine`
+`sudo docker runc --rm --entrypoint /bin/bash -v $(pwd)/core:/usr/app/core --net=host -it wiren:alpine`
 
 Then start WSGI server
 ```
