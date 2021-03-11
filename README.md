@@ -39,18 +39,36 @@ Default output format [None]:
 ### Creating DynamoDB table
 ```
 $ aws dynamodb create-table \
-    --table-name users-table-dev \
-    --attribute-definitions AttributeName=userId,AttributeType=S \
-    --key-schema AttributeName=userId,KeyType=HASH \
+    --table-name ltd.noooner.dam.core.index.dev \
+    --attribute-definitions AttributeName=id,AttributeType=S \
+    --key-schema AttributeName=id,KeyType=HASH \
     --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 \
     --endpoint-url http://localhost:4566
 ```
-### List items in DynamoDB table
+
+### Deleting DynamoDB table
+```
+$ aws dynamodb delete-table \
+    --table-name ltd.noooner.dam.core.index.dev \
+    --endpoint-url http://localhost:4566
+```
+
+### List all items in DynamoDB table
 ```
 $ aws dynamodb scan \
     --table-name ltd.noooner.dam.core.index.dev \
     --endpoint-url http://localhost:4566
 ```
+
+### List items in DynamoDB table based on keyword
+```
+$ aws dynamodb scan \
+    --table-name ltd.noooner.dam.core.index.dev \
+    --filter-expression 'contains(keywords,:key)' \
+    --expression-attribute-values '{":key":{"S":"Toyota"}}' \
+    --endpoint-url http://localhost:4566
+```
+
 
 ### Creating S3 bucket
 ```
