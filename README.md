@@ -36,7 +36,7 @@ AWS Secret Access Key [None]: test
 Default region name [None]: localhost
 Default output format [None]: 
 ```
-### Creating Dynamodb table
+### Creating DynamoDB table
 ```
 $ aws dynamodb create-table \
     --table-name users-table-dev \
@@ -45,6 +45,13 @@ $ aws dynamodb create-table \
     --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 \
     --endpoint-url http://localhost:4566
 ```
+### List items in DynamoDB table
+```
+aws dynamodb scan \
+    --table-name ltd.nooonert.dam.core.index.dev \
+    --endpoint-url http://localhost:4566
+```
+
 ### Creating S3 bucket
 ```
 $ aws s3 mb s3://ltd.noooner.dam.core.uploads --endpoint-url http://localhost:4566
