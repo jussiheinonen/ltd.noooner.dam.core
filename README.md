@@ -47,7 +47,7 @@ $ aws dynamodb create-table \
 ```
 ### List items in DynamoDB table
 ```
-aws dynamodb scan \
+$ aws dynamodb scan \
     --table-name ltd.nooonert.dam.core.index.dev \
     --endpoint-url http://localhost:4566
 ```
