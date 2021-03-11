@@ -3,7 +3,7 @@
 Extract metadata from image files
 
 USAGE
-python3 index.py -f uploads/2BCBG15.jpg -type iptc
+python3 index.py -f uploads/2BCBG15.jpg -t iptc
 
 READING
 XMP vs RDF: https://stackoverflow.com/questions/4681964/which-to-use-xmp-or-rdf
