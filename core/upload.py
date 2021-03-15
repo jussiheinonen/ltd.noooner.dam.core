@@ -12,14 +12,17 @@ from pprint import pprint
 from flask import Flask,  jsonify, request
 
 UPLOAD_FOLDER = './uploads'
-UPLOAD_BUCKET = 'ltd.noooner.dam.core.uploads'
+BUCKET_NAME = os.environ.get('BUCKET_NAME')
+BUCKET_EXISTS = False
 ENDPOINT_URL = 'http://localhost:4566'
 STORAGE_TYPE = 'S3' # S3 or FS (local file system)
 IS_OFFLINE = os.environ.get('IS_OFFLINE')
 
+
+
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['UPLOAD_BUCKET'] = UPLOAD_BUCKET
+app.config['BUCKET_NAME'] = BUCKET_NAME
 app.config['ENDPOINT_URL'] = ENDPOINT_URL
 app.config['STORAGE_TYPE'] = STORAGE_TYPE
 app.config['IS_OFFLINE'] = IS_OFFLINE
@@ -46,7 +49,16 @@ if app.config['STORAGE_TYPE'] == 'FS':
             print("Failed to create upload directory " + UPLOAD_FOLDER + ". Error " + e)
 elif app.config['STORAGE_TYPE'] == 'S3':
     response = s3_client.list_buckets()
-    pprint(response)
+    #pprint(response)
+    for each in response['Buckets']: # TODO: insufficient way check wheter bucket exists
+        if app.config['BUCKET_NAME'] in each['Name']:
+            print('Bucket ' + str(app.config['BUCKET_NAME']) + " found")
+            BUCKET_EXISTS = True
+            break
+    if not BUCKET_EXISTS:
+        print("WARNING: Bucket " + str(app.config['BUCKET_NAME']) + " does not exist!")
+    
+
     
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -63,7 +75,7 @@ def upload_file():
             return jsonify({'ok': 'File ' + filename + ' saved successfully'}), 200
         elif app.config['STORAGE_TYPE'] == 'S3':
             try:
-                response = s3_client.upload_fileobj(file, app.config['UPLOAD_BUCKET'], filename)
+                response = s3_client.upload_fileobj(file, app.config['BUCKET_NAME'], filename)
             except ClientError as e:
                 logging.error(e)
                 return jsonify(e), 400
