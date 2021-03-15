@@ -27,6 +27,12 @@ def isTypeOf(value):
     else:
         return 'S'
 
+def S3BucketExists(s3_client, bucket_name):
+    try:
+        response = s3_client.head_bucket(Bucket = bucket_name)
+        return True
+    except:
+        return False
 
 def writeDictionaryToDDB(dict, table_name, client):
     print('writing metadata')

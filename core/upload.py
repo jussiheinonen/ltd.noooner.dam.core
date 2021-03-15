@@ -10,6 +10,8 @@ import os, sys, boto3, pprint, logging
 from botocore.exceptions import ClientError
 from pprint import pprint
 from flask import Flask,  jsonify, request
+from functions import S3BucketExists
+
 
 UPLOAD_FOLDER = './uploads'
 BUCKET_NAME = os.environ.get('BUCKET_NAME')
@@ -48,10 +50,8 @@ if app.config['STORAGE_TYPE'] == 'FS':
         except TypeError as e:
             print("Failed to create upload directory " + UPLOAD_FOLDER + ". Error " + e)
 elif app.config['STORAGE_TYPE'] == 'S3':
-    try: 
-        response = s3_client.head_bucket(Bucket = app.config['BUCKET_NAME'] )
-        BUCKET_EXISTS = True
-    except:
+    BUCKET_EXISTS = S3BucketExists(s3_client, app.config['BUCKET_NAME'] )
+    if not BUCKET_EXISTS:
         print("WARNING: Bucket " + str(app.config['BUCKET_NAME']) + " does not exist!")
     
 @app.route('/upload', methods=['POST'])
