@@ -48,17 +48,11 @@ if app.config['STORAGE_TYPE'] == 'FS':
         except TypeError as e:
             print("Failed to create upload directory " + UPLOAD_FOLDER + ". Error " + e)
 elif app.config['STORAGE_TYPE'] == 'S3':
-    response = s3_client.list_buckets()
-    #pprint(response)
-    for each in response['Buckets']: # TODO: insufficient way check wheter bucket exists
-        if app.config['BUCKET_NAME'] in each['Name']:
-            print('Bucket ' + str(app.config['BUCKET_NAME']) + " found")
-            BUCKET_EXISTS = True
-            break
-    if not BUCKET_EXISTS:
+    try: 
+        response = s3_client.head_bucket(Bucket = app.config['BUCKET_NAME'] )
+        BUCKET_EXISTS = True
+    except:
         print("WARNING: Bucket " + str(app.config['BUCKET_NAME']) + " does not exist!")
-    
-
     
 @app.route('/upload', methods=['POST'])
 def upload_file():
