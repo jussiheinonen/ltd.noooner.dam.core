@@ -64,7 +64,7 @@ Default output format [None]:
 ### Creating DynamoDB table
 ```
 $ aws dynamodb create-table \
-    --table-name ltd.noooner.dam.core.index.dev \
+    --table-name ${INDEX_TABLE} \
     --attribute-definitions AttributeName=id,AttributeType=S \
     --key-schema AttributeName=id,KeyType=HASH \
     --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 \
@@ -74,21 +74,21 @@ $ aws dynamodb create-table \
 ### Deleting DynamoDB table
 ```
 $ aws dynamodb delete-table \
-    --table-name ltd.noooner.dam.core.index.dev \
+    --table-name ${INDEX_TABLE} \
     --endpoint-url http://localhost:4566
 ```
 
 ### List all items in DynamoDB table
 ```
 $ aws dynamodb scan \
-    --table-name ltd.noooner.dam.core.index.dev \
+    --table-name ${INDEX_TABLE} \
     --endpoint-url http://localhost:4566
 ```
 
 ### List items in DynamoDB table based on keyword
 ```
 $ aws dynamodb scan \
-    --table-name ltd.noooner.dam.core.index.dev \
+    --table-name ${INDEX_TABLE} \
     --filter-expression 'contains(keywords,:key)' \
     --expression-attribute-values '{":key":{"S":"Toyota"}}' \
     --endpoint-url http://localhost:4566
@@ -97,19 +97,19 @@ $ aws dynamodb scan \
 
 ### Creating S3 bucket
 ```
-$ aws s3 mb s3://ltd.noooner.dam.core.dev --endpoint-url http://localhost:4566
+$ aws s3 mb s3://${BUCKET_NAME} --endpoint-url http://localhost:4566
 make_bucket: ltd.noooner.dam.core.dev
 ```
 
 ### Copying file to the bucket
 ```
-$ aws s3 cp package.json s3://ltd.noooner.dam.dev --endpoint-url http://localhost:4566
+$ aws s3 cp package.json s3://${BUCKET_NAME} --endpoint-url http://localhost:4566
 upload: ./package.json to s3://ltd.noooner.dam.core.dev/package.json 
 ```
 
 ### Listing files in the bucket
 ```
-$ aws s3 ls s3://ltd.noooner.dam.core.dev --endpoint-url http://localhost:4566
+$ aws s3 ls s3://${BUCKET_NAME} --endpoint-url http://localhost:4566
 2021-02-24 14:44:00        155 package.json
 ```
 
