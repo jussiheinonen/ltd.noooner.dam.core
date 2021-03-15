@@ -101,6 +101,11 @@ $ aws s3 mb s3://${BUCKET_NAME} --endpoint-url http://localhost:4566
 make_bucket: ltd.noooner.dam.core.dev
 ```
 
+### Deleting S3 bucket, with force
+```
+aws s3 rb --force s3://${BUCKET_NAME} --endpoint-url http://localhost:4566
+```
+
 ### Copying file to the bucket
 ```
 $ aws s3 cp package.json s3://${BUCKET_NAME} --endpoint-url http://localhost:4566
