@@ -13,20 +13,11 @@ from flask import Flask,  jsonify, request
 from functions import S3BucketExists
 
 
-UPLOAD_FOLDER = './uploads'
-BUCKET_NAME = os.environ.get('BUCKET_NAME')
-BUCKET_EXISTS = False
-ENDPOINT_URL = 'http://localhost:4566'
-STORAGE_TYPE = 'S3' # S3 or FS (local file system)
+BUCKET_NAME = os.environ.get('UPLOAD_BUCKET')
 IS_OFFLINE = os.environ.get('IS_OFFLINE')
 
-
-
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['BUCKET_NAME'] = BUCKET_NAME
-app.config['ENDPOINT_URL'] = ENDPOINT_URL
-app.config['STORAGE_TYPE'] = STORAGE_TYPE
 app.config['IS_OFFLINE'] = IS_OFFLINE
 
 # boto3.client: https://boto3.amazonaws.com/v1/documentation/api/1.9.42/reference/services/s3.html#client
@@ -41,18 +32,12 @@ if IS_OFFLINE:
 else:
     s3_client = boto3.client('s3')
 
-if app.config['STORAGE_TYPE'] == 'FS':
-    if not os.path.exists(UPLOAD_FOLDER):
-        print("Upload directory " + UPLOAD_FOLDER + " does not exist")
-        try:
-            os.mkdir(UPLOAD_FOLDER)
-            print("Upload directory " + UPLOAD_FOLDER + " created")
-        except TypeError as e:
-            print("Failed to create upload directory " + UPLOAD_FOLDER + ". Error " + e)
-elif app.config['STORAGE_TYPE'] == 'S3':
-    BUCKET_EXISTS = S3BucketExists(s3_client, app.config['BUCKET_NAME'] )
-    if not BUCKET_EXISTS:
-        print("WARNING: Bucket " + str(app.config['BUCKET_NAME']) + " does not exist!")
+
+BUCKET_EXISTS = S3BucketExists(s3_client, app.config['BUCKET_NAME'] )
+if not BUCKET_EXISTS:
+    print("WARNING: Bucket " + str(app.config['BUCKET_NAME']) + " does not exist!")
+else:
+    print("Bucket " + str(app.config['BUCKET_NAME']) + " is accessible")
     
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -64,14 +49,17 @@ def upload_file():
         return jsonify({'error': 'No filename'}), 406 # 406 Not Acceptable        
     if file:
         filename = file.filename
-        if app.config['STORAGE_TYPE'] == 'FS':
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return jsonify({'ok': 'File ' + filename + ' saved successfully'}), 200
-        elif app.config['STORAGE_TYPE'] == 'S3':
-            try:
-                response = s3_client.upload_fileobj(file, app.config['BUCKET_NAME'], filename)
-            except ClientError as e:
-                logging.error(e)
-                return jsonify(e), 400
-            return jsonify({'ok': 'File ' + filename + ' saved successfully in S3'}), 200
-       
+        try:
+            response = s3_client.upload_fileobj(file, app.config['BUCKET_NAME'], filename)
+
+            # If running locally send a makeshift S3 trigger to Inded function
+            if IS_OFFLINE:
+                from index import lambda_handler
+                from functions import mockS3Trigger
+                event = mockS3Trigger(app.config['BUCKET_NAME'], filename)
+                lambda_handler(event, None)
+
+            return jsonify({'OK': 'File ' + filename + ' saved successfully in s3://' + str(app.config['BUCKET_NAME'])}), 200
+        except ClientError as e:
+            logging.error(e)
+            return jsonify(e), 400
