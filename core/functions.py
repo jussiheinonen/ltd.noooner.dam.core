@@ -78,17 +78,3 @@ def writeDictionaryToDDB(dict, table_name, client):
 
     print(str(resp))
 
-'''
-aws dynamodb create-table \
---table-name ltd.nooonert.dam.core.index.dev \
---attribute-definitions AttributeName=id,AttributeType=S \
---key-schema AttributeName=id,KeyType=HASH \
---provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 \
---endpoint-url http://localhost:4566
-
-aws dynamodb list-tables --endpoint-url http://localhost:4566
-
-aws dynamodb scan \
-    --table-name ltd.nooonert.dam.core.index.dev \
-    --endpoint-url http://localhost:4566
-'''
