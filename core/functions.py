@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from pprint import pprint
-import time
+import time, json
 
 
 def createDDBObject(dict):
@@ -27,9 +27,40 @@ def isTypeOf(value):
     else:
         return 'S'
 
+def mockS3Trigger(bucket, key):
+    event = dict(
+        {
+            "Records": [
+            {
+                "s3": {
+                "bucket": {
+                    "name": bucket
+                },
+                "object": {
+                    "key": key
+                }
+                }
+            }
+            ]
+        }
+    )
+
+    return event
+
 def S3BucketExists(s3_client, bucket_name):
+    # Boto3 S3 client methods https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html
     try:
         response = s3_client.head_bucket(Bucket = bucket_name)
+        return True
+    except:
+        return False
+
+def S3ObjectExists(s3_clien, bucket_name, file_name):
+    try:
+        response = s3_client.head_bucket(
+            Bucket = bucket_name,
+            Key= file_name
+            )
         return True
     except:
         return False
