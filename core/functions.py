@@ -6,7 +6,8 @@ import time, json
 
 def createDDBObject(dict):
     # construct DynamoDB object from dictionary
-    id = time.time_ns() # Type of int
+    #id = time.time_ns() # Type of int. Poor primary key, replaced by md5 checksum
+    id = dict['md5'] # Use md5 checksum as a primary key
     ddb_item = { 'id' : {'S': str(id)} }
     for key, value in dict.items():
         type = isTypeOf(value)
@@ -26,6 +27,11 @@ def isTypeOf(value):
         return 'M'
     else:
         return 'S'
+
+def md5sum(image_bytes):
+    import hashlib
+    checksum = hashlib.md5(image_bytes).hexdigest()
+    return checksum
 
 def mockS3Trigger(bucket, key):
     event = dict(

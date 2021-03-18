@@ -2,7 +2,7 @@ import json, sys, os
 import urllib.parse
 import boto3
 from iptcinfo3 import IPTCInfo
-from functions import writeDictionaryToDDB
+from functions import *
 
 print('Loading function')
 
@@ -68,7 +68,10 @@ def lambda_handler(event, context):
             'time created',
 
             ]
-        dict_info = {}
+        dict_info = {
+            'md5': md5sum(response_body),
+            'original_filename': key
+        }
         for field in fields:
             try:
                 if info[field]:
