@@ -1,0 +1,54 @@
+# serverless-upload.yml - Upload endpoint consisting API Gatway, Lambda and S3
+# 
+# NOTE: requirements.txt must be present in the directory where sls is run
+#       To create this file run python -m pip freeze > requirements.txt
+#
+# Lambda's 6MB synchronous payload limit  https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html
+#
+# USAGE
+#   INFO: sls info -c serverless-upload.yml - Display information about the service
+#   DEPLOY: sls deploy -c serverless-upload.yml
+#   UNDEPLOY: sls remove -c serverless-upload.yml
+
+service: ${self:custom.projectRoot}
+plugins:
+  - serverless-python-requirements # will package dependencies based on requirements.txt
+  - serverless-wsgi
+
+custom:
+  projectRoot: ltd-noooner-dam-core-upload
+  wsgi:
+    app: upload.app
+    packRequirements: false
+  pythonRequirements:
+    dockerizePip: non-linux
+
+provider:
+  name: aws
+  runtime: python3.8
+  stage: dev
+  region: eu-west-1
+  s3:
+    upload:
+      name: ${self:custom.projectRoot}-${self:provider.stage}
+  environment:
+    UPLOAD_BUCKET: ${self:custom.projectRoot}-${self:provider.stage}    
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:PutObject
+        - s3:ListBucket
+      Resource:
+        - "*"
+    
+functions:
+  app:
+    handler: wsgi_handler.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
+    environment:
+      UPLOAD_BUCKET: ${self:custom.projectRoot}-${self:provider.stage}
+
+
