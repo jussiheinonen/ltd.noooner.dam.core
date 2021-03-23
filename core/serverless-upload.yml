@@ -1,7 +1,9 @@
-# serverless-upload.yml - Upload endpoint consisting API Gatway, Lambda and S3
+# serverless-upload.yml - Upload endpoint: API Gateway, Lambda and S3 
 # 
 # NOTE: requirements.txt must be present in the directory where sls is run
 #       To create this file run python -m pip freeze > requirements.txt
+#
+#       S3 bucket does not get automatically created.
 #
 # Lambda's 6MB synchronous payload limit  https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html
 #
