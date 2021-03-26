@@ -5,9 +5,7 @@ from botocore.exceptions import ClientError
 '''
 PARAMETERS
     method:     get_object or put_object - REQUIRED
-    filename:   filename to download or upload - REQUIRED
-    expiration: time in seconds after which signed URL expires - DEFAULT: 300
-
+    filename:   filename to download or to upload - REQUIRED
 
 TESTING
     Uploading file named 2BCBG15.jpg
@@ -16,6 +14,9 @@ TESTING
         -X POST https://8ydk0jhm36.execute-api.eu-west-1.amazonaws.com/presign \
         -d '{"method": "put_object", "filename": "2BCBG15.jpg"}')
 
+    NOTE:   Uploads and downloads use separate buckets and therefore in order to test download 
+            one should move the file from uploade bucket to download before attempting to download
+            
     Downloading file named 2BCBG15.jpg
         curl --output 2BCBG15.jpg \
         $(curl -H "Content-Type: application/json" \
@@ -46,7 +47,7 @@ def lambda_handler(event, context):
         payload = event['body']
 
     print('Contents of the payload is ' + str(payload))
-    print('Payload type is ' + str(type(payload)))
+    #print('Payload type is ' + str(type(payload)))
     try:
         object_name = payload['filename']
     except ClientError as e:
