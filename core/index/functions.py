@@ -62,6 +62,22 @@ def S3BucketExists(s3_client, bucket_name):
     except:
         return False
 
+def S3Del(s3_client, file_name, bucket_name):
+    '''
+    :param s3_client: Boto3 client object
+    :param file_name: File to delete
+    :param bucket_name: Bucket to delete from
+    '''
+
+    try:
+        response = s3_client.delete_object(
+            Key=file_name, 
+            Bucket=bucket_name)
+    except ClientError as e:
+        logging.error(e)
+        return False
+    return True    
+
 def S3Put(s3_client, file_name, bucket_name, object_name=None):
     '''
     :param s3_client: Boto3 client object
@@ -90,16 +106,28 @@ def S3ObjectExists(s3_clien, bucket_name, file_name):
     except:
         return False
 
+def variableIsNone(var_name):
+    if var_name == None:
+        return True
+    else:
+        return False
+    
+
 def writeDictionaryToDDB(dict, table_name, client):
     print('writing metadata')
     
     ddb_obj = createDDBObject(dict)
     pprint(ddb_obj)
 
-    resp = client.put_item( 
-        TableName=table_name, 
-        Item=ddb_obj
-        )
+    try:
+        resp = client.put_item( 
+            TableName=table_name, 
+            Item=ddb_obj)
+        
+    except ClientError as e:
+        logging.error(e)
+        return False
+    return True
 
-    print(str(resp))
+    
 

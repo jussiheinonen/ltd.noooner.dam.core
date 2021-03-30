@@ -8,6 +8,11 @@ from functions import *
 CLI tool for...
     1. Uploading a file to upload bucket
     2. Sending mock S3 trigger to index.lambda_handler()
+
+To bulk feed images...
+    for file in $(ls ../uploads/); do
+        ./index-invoke.py --filename ../uploads/${file} --bucketname ltd.noooner.dam.core.upload
+    done
 '''
 UPLOAD_BUCKET = os.environ.get('UPLOAD_BUCKET')
 IS_OFFLINE = os.environ.get('IS_OFFLINE')

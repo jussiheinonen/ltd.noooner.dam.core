@@ -34,21 +34,31 @@ else:
 
 
 def lambda_handler(event, context):
-    print("Received event: " + json.dumps(event, indent=2))
+    #print("Received event: " + json.dumps(event, indent=2))
 
     # Get the object from the event and show its content type
-    bucket = event['Records'][0]['s3']['bucket']['name']
+    
+    if variableIsNone(INDEX_TABLE):
+        print('Environment variable INDEX_TABLE not set')
+        return None
+    elif variableIsNone(DOWNLOAD_BUCKET):
+        print('Environment variable DOWNLOAD_BUCKET not set')
+        return None
+
+
+    upload_bucket = event['Records'][0]['s3']['bucket']['name']
     key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'], encoding='utf-8')
-    print('Bucket is ' + str(bucket) + ', Key is ' + str(key))
+    print('Bucket is ' + str(upload_bucket) + ', Key is ' + str(key))
 
     try:
-        response = s3_client.get_object(Bucket=bucket, Key=key)
+        response = s3_client.get_object(Bucket=upload_bucket, Key=key)
         response_body = response['Body'].read() # StreamingBody to bytes
+        tmp_file = md5sum(response_body)
 
-        with open("tmp.jpg", "wb") as binary_file: #Write bytes to file so that IPTCInfo class can access it
+        with open(tmp_file, "wb") as binary_file: #Write bytes to file so that IPTCInfo class can access it
             binary_file.write(response_body)
 
-        info = IPTCInfo("tmp.jpg", force=True, inp_charset='UTF-8') # creates iptcinfo3.IPTCInfo object
+        info = IPTCInfo(tmp_file, force=True, inp_charset='UTF-8') # creates iptcinfo3.IPTCInfo object
         fields = [
             'keywords',
             'headline',
@@ -85,14 +95,18 @@ def lambda_handler(event, context):
             #print('Dictionary object dict_info has ' + str(len(dict_info)) + " items")
             writeDictionaryToDDB(dict_info, INDEX_TABLE, ddb_client)
         
-        # Remove tmp.jpg
-        tmp_file = 'tmp.jpg'
+        print('Sending ' + key + ' to ' + DOWNLOAD_BUCKET)
+        S3Put(s3_client, tmp_file, DOWNLOAD_BUCKET, key)
+        print('Deleting ' + key + ' from ' + upload_bucket)
+        S3Del(s3_client, key, upload_bucket)
+
+        # Remove tmp_file
         if os.path.exists(tmp_file):
             os.remove(tmp_file)
 
     except Exception as e:
         print(e)
-        print('Error getting object {} from bucket {}. Make sure they exist and your bucket is in the same region as this function.'.format(key, bucket))
+        print('Error getting object {} from bucket {}. Make sure they exist and your bucket is in the same region as this function.'.format(key, upload_bucket))
         raise e
 
 
