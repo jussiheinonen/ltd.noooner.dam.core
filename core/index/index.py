@@ -1,13 +1,15 @@
-import json, sys, os
+import json, os
 import urllib.parse
 import boto3
 from iptcinfo3 import IPTCInfo
 from functions import *
 
-print('Loading function')
+#print('Loading function')
 
 IS_OFFLINE = os.environ.get('IS_OFFLINE')
-INDEX_TABLE = os.environ['INDEX_TABLE']
+INDEX_TABLE = os.environ.get('INDEX_TABLE')
+UPLOAD_BUCKET = os.environ.get('UPLOAD_BUCKET')
+DOWNLOAD_BUCKET = os.environ.get('DOWNLOAD_BUCKET')
 
 if IS_OFFLINE:
     s3_client = boto3.client(
@@ -38,13 +40,10 @@ def lambda_handler(event, context):
     bucket = event['Records'][0]['s3']['bucket']['name']
     key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'], encoding='utf-8')
     print('Bucket is ' + str(bucket) + ', Key is ' + str(key))
-    #sys.exit(0)
+
     try:
         response = s3_client.get_object(Bucket=bucket, Key=key)
-        print("CONTENT TYPE: " + response['ContentType'])
         response_body = response['Body'].read() # StreamingBody to bytes
-        print('Response Body size ' + str(len(response_body)) + ' bytes')
-        #return response['ContentType']
 
         with open("tmp.jpg", "wb") as binary_file: #Write bytes to file so that IPTCInfo class can access it
             binary_file.write(response_body)
@@ -83,9 +82,14 @@ def lambda_handler(event, context):
             print('No IPTC data found')
         else:
             # About DDB schema https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/SampleData.html
-            print('Size fo the object dict_info: ' + str(sys.getsizeof(dict_info)) + " bytes")
-            print('Dictionary object dict_info has ' + str(len(dict_info)) + " items")
+            #print('Dictionary object dict_info has ' + str(len(dict_info)) + " items")
             writeDictionaryToDDB(dict_info, INDEX_TABLE, ddb_client)
+        
+        # Remove tmp.jpg
+        tmp_file = 'tmp.jpg'
+        if os.path.exists(tmp_file):
+            os.remove(tmp_file)
+
     except Exception as e:
         print(e)
         print('Error getting object {} from bucket {}. Make sure they exist and your bucket is in the same region as this function.'.format(key, bucket))
