@@ -26,16 +26,21 @@ createIndexTable() {
     --endpoint-url http://localhost:4566
 }
 
-createUploadBucket() {
-    aws s3 mb s3://${UPLOAD_BUCKET} --endpoint-url http://localhost:4566
+createBucket() {
+    for each in $*; do
+        aws s3 mb s3://${each} --endpoint-url http://localhost:4566
+    done
 }
+if [[ -f ${HOME}/.aws/credentials ]]; then
+    read -p "WARNING! ${HOME}/.aws/credentials already exist. Overwrite ? [y/n]" overwrite
+fi
+if [[ "${overwrite}" == "y" ]]; then
+    awsConfig
+    awsCredentials
+else
+    echo "Skipping aws cli config"
+fi
 
-createOriginalsBucket() {
-    aws s3 mb s3://${DOWNLOAD_BUCKET} --endpoint-url http://localhost:4566
-}
-
-awsConfig
-awsCredentials
 createIndexTable
-createUploadBucket
-createOriginalsBucket
+createBucket "${UPLOAD_BUCKET}" "${DOWNLOAD_BUCKET}"
+
