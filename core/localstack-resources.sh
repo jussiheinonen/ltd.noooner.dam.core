@@ -31,7 +31,7 @@ createUploadBucket() {
 }
 
 createOriginalsBucket() {
-    aws s3 mb s3://${ORIGINALS_BUCKET} --endpoint-url http://localhost:4566
+    aws s3 mb s3://${DOWNLOAD_BUCKET} --endpoint-url http://localhost:4566
 }
 
 awsConfig

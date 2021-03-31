@@ -12,11 +12,6 @@ usage() {
     echo "USAGE: source $0"
 }
 
-
-echo "DIRNAME is ${DIRNAME}"
-
-
-
 if [[ "$$" -ne "1" ]]; then
     echo "Source this script instead of running in subshell"
     usage
