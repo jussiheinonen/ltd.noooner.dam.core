@@ -1,0 +1,110 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SAM template for INDEX 
+  BUILD & DEPLOY: sam build && sam deploy
+  DESTROY: aws cloudformation delete-stack --stack-name sam-app --region region
+  Circular dependency error when deploying, see https://aws.amazon.com/premiumsupport/knowledge-center/cloudformation-circular-dependency-sam/
+Resources:
+  ## Lambda functions
+  IndexFunction:
+    # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: .
+      Handler: index.lambda_handler
+      Runtime: python3.8
+      Timeout: 5
+      MemorySize: 256
+      Environment:
+        Variables:
+          DOWNLOAD_BUCKET: !Sub "ltd.noooner.dam.core.download.${AWS::StackName}"
+          UPLOAD_BUCKET: !Sub "ltd.noooner.dam.core.upload.${AWS::StackName}"
+          INDEX_TABLE: !Sub "ltd.noooner.dam.core.index.${AWS::StackName}"
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Sub "ltd.noooner.dam.core.upload.${AWS::StackName}"
+        - Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:GetObjectACL
+              - s3:DeleteObject
+            Resource: 
+              - !Sub "arn:aws:s3:::ltd.noooner.dam.core.upload.${AWS::StackName}"
+              - !Sub "arn:aws:s3:::ltd.noooner.dam.core.upload.${AWS::StackName}/*"
+        - S3ReadPolicy:
+            BucketName: !Sub "ltd.noooner.dam.core.download.${AWS::StackName}"
+        - Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:GetObjectACL
+              - s3:putObject
+            Resource: 
+              - !Sub "arn:aws:s3:::ltd.noooner.dam.core.download.${AWS::StackName}"
+              - !Sub "arn:aws:s3:::ltd.noooner.dam.core.download.${AWS::StackName}/*"
+      Events:
+        Upload:
+          Properties:
+            Bucket:
+              Ref: S3UploadBucket
+            Events: s3:ObjectCreated:*
+          Type: S3                
+
+  ## S3 buckets
+  S3UploadBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "ltd.noooner.dam.core.upload.${AWS::StackName}"
+      CorsConfiguration:
+        CorsRules:
+        - AllowedHeaders:
+            - "*"
+          AllowedMethods:
+            - GET
+            - PUT
+            - HEAD
+          AllowedOrigins:
+            - "*"
+  S3DownloadBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "ltd.noooner.dam.core.download.${AWS::StackName}"
+      CorsConfiguration:
+        CorsRules:
+        - AllowedHeaders:
+            - "*"
+          AllowedMethods:
+            - GET
+            - PUT
+            - HEAD
+          AllowedOrigins:
+            - "*"
+
+  # DynamoDB definition           
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "ltd.noooner.dam.core.index.${AWS::StackName}"
+      AttributeDefinitions: 
+        - AttributeName: id
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+## Take a note of the outputs for deploying the workflow templates in this sample application
+Outputs:
+  DDBName:
+    Description: "DynamoDB table for index data"
+    Value: !Ref 'DynamoDBTable'
+  S3UploadBucketName:
+    Description: "S3 bucket for application uploads"
+    Value: !Ref 'S3UploadBucket'
+  S3DownloadBucketName:
+    Description: "S3 bucket for application downloads"
+    Value: !Ref 'S3DownloadBucket'
