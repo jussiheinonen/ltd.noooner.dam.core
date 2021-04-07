@@ -4,7 +4,8 @@ Description: >
   SAM template for INDEX 
   BUILD & DEPLOY: sam build && sam deploy
   DESTROY: aws cloudformation delete-stack --stack-name sam-app --region region
-  Circular dependency error when deploying, see https://aws.amazon.com/premiumsupport/knowledge-center/cloudformation-circular-dependency-sam/
+  
+  SAM policy template reference https://github.com/aws/serverless-application-model/blob/develop/tests/translator/input/all_policy_templates.yaml
 Resources:
   ## Lambda functions
   IndexFunction:
@@ -22,6 +23,8 @@ Resources:
           UPLOAD_BUCKET: !Sub "ltd.noooner.dam.core.upload.${AWS::StackName}"
           INDEX_TABLE: !Sub "ltd.noooner.dam.core.index.${AWS::StackName}"
       Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Sub "ltd.noooner.dam.core.index.${AWS::StackName}"
         - S3WritePolicy:
             BucketName: !Sub "ltd.noooner.dam.core.upload.${AWS::StackName}"
         - Statement:
