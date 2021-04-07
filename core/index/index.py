@@ -53,7 +53,7 @@ def lambda_handler(event, context):
     try:
         response = s3_client.get_object(Bucket=upload_bucket, Key=key)
         response_body = response['Body'].read() # StreamingBody to bytes
-        tmp_file = md5sum(response_body)
+        tmp_file = '/tmp/' + md5sum(response_body)
 
         with open(tmp_file, "wb") as binary_file: #Write bytes to file so that IPTCInfo class can access it
             binary_file.write(response_body)
