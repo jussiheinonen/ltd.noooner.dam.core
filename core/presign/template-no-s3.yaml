@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SAM template for PRESIGN endpoint
+  BUILD & DEPLOY: sam build -t template-no-s3.yaml && sam deploy -t template-no-s3.yaml
+  DESTROY: aws cloudformation delete-stack --stack-name sam-app --region region
+
+Resources:
+  # HTTP API
+  MyApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowMethods:
+          - "POST"
+        AllowHeaders:
+          - "*"   
+        AllowOrigins: 
+          - "*"      
+
+  ## Lambda functions
+  SignedUrlFunction:
+    # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lib/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Timeout: 5
+      MemorySize: 128
+      Environment:
+        Variables:
+          UPLOAD_BUCKET: ltd.noooner.dam.core.upload.ltd-noooner-index
+          DOWNLOAD_BUCKET: ltd.noooner.dam.core.download.ltd-noooner-index
+      Policies:
+        - S3WritePolicy:
+            BucketName: ltd.noooner.dam.core.upload.ltd-noooner-index
+        - Statement:
+          - Effect: Allow
+            Action:
+              - s3:putObjectAcl
+            Resource: 
+              - arn:aws:s3:::ltd.noooner.dam.core.upload.ltd-noooner-index
+        - S3ReadPolicy:
+            BucketName: ltd.noooner.dam.core.download.ltd-noooner-index
+        - Statement:
+          - Effect: Allow
+            Action:
+              - s3:putObjectAcl
+            Resource: 
+              - arn:aws:s3:::ltd.noooner.dam.core.download.ltd-noooner-index
+      Events:
+        PresignAPI:
+          Type: HttpApi
+          Properties:
+            Path: /presign
+            Method: post
+            ApiId: !Ref MyApi  
+
+## Take a note of the outputs for deploying the workflow templates in this sample application
+Outputs:
+  APIendpoint:
+    Description: "HTTP API endpoint URL"
+    Value: !Sub "https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/presign"
+  DestroyStack:
+    Description: "Delete stack command"
+    Value: !Sub "aws cloudformation delete-stack --stack-name ${AWS::StackName} --region ${AWS::Region}"
