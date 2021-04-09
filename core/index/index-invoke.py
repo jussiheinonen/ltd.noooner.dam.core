@@ -24,7 +24,7 @@ if UPLOAD_BUCKET == None:
 parser = argparse.ArgumentParser(description='Process image metadata')
 
 parser.add_argument('-f', '--filename', dest='filename', required=True, help="file to upload into S3 bucket")
-parser.add_argument('-b', '--bucketname', dest='bucket', required=True, help="name of the S3 bucket")
+parser.add_argument('-b', '--bucketname', dest='bucket', default=UPLOAD_BUCKET, help="name of the S3 bucket")
 args = parser.parse_args()
 
 bucket = args.bucket
