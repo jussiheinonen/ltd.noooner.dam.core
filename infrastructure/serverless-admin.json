@@ -21,6 +21,7 @@
                 "dynamodb:DeleteTable",
                 "dynamodb:DescribeTable",
                 "dynamodb:DescribeTimeToLive",
+                "dynamodb:Scan",
                 "dynamodb:UpdateTimeToLive",
                 "ec2:AttachInternetGateway",
                 "ec2:AuthorizeSecurityGroupIngress",
