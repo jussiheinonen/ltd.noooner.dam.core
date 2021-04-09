@@ -1,4 +1,4 @@
-import json, os
+import json, os, time
 import urllib.parse
 import boto3
 from iptcinfo3 import IPTCInfo
@@ -77,9 +77,13 @@ def lambda_handler(event, context):
             'time created',
 
             ]
+
+        upload_time_epoch = str(time.time())
+
         dict_info = {
             'md5': md5sum(response_body),
-            'original_filename': key
+            'original_filename': key,
+            'upload_time_epoch': upload_time_epoch
         }
         for field in fields:
             try:
