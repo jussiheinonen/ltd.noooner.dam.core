@@ -11,17 +11,17 @@ TESTING
     Uploading file named 2BCBG15.jpg
         curl -X PUT -T 2BCBG15.jpg \
         $(curl -H "Content-Type: application/json" \
-        -X POST https://8ydk0jhm36.execute-api.eu-west-1.amazonaws.com/presign \
+        -X POST https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/presign \
         -d '{"method": "put_object", "filename": "2BCBG15.jpg"}')
 
     NOTE:   Uploads and downloads use separate buckets and therefore in order to test download 
             one should move the file from uploade bucket to download before attempting to download
             
     Downloading file named 2BCBG15.jpg
-        curl --output 2BCBG15.jpg \
+        curl --output AFP_8TL7YA.jpg \
         $(curl -H "Content-Type: application/json" \
-        -X POST https://8ydk0jhm36.execute-api.eu-west-1.amazonaws.com/presign \
-        -d '{"method": "get_object", "filename": "2BCBG15.jpg"}')  
+        -X POST https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/presign \
+        -d '{"method": "get_object", "filename": "AFP_8TL7YA.jpg"}')  
 '''
 
 
