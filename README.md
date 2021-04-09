@@ -94,6 +94,15 @@ $ aws dynamodb scan \
     --endpoint-url http://localhost:4566
 ```
 
+### List select fields in DynamoDB table based on keyword
+```
+$ aws dynamodb scan \
+    --table-name ${INDEX_TABLE} \
+    --projection-expression "headline,original_filename" \
+    --filter-expression 'contains(keywords,:key)' \
+    --expression-attribute-values '{":key":{"S":"Toyota"}}' \
+    --endpoint-url http://localhost:4566
+```
 
 ### Creating S3 bucket
 ```
