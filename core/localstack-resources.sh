@@ -32,8 +32,11 @@ createBucket() {
     done
 }
 if [[ -f ${HOME}/.aws/credentials ]]; then
-    read -p "WARNING! ${HOME}/.aws/credentials already exist. Overwrite ? [y/n]" overwrite
+    read -p "WARNING! ${HOME}/.aws/credentials already exist. Overwrite ? [y/n] " overwrite
+else 
+    overwrite="y"
 fi
+
 if [[ "${overwrite}" == "y" ]]; then
     awsConfig
     awsCredentials
