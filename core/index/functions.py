@@ -36,23 +36,44 @@ def md5sum(image_bytes):
 
 def mockS3Trigger(bucket, key):
     event = dict(
-        {
-            "Records": [
             {
-                "s3": {
-                "bucket": {
-                    "name": bucket
-                },
-                "object": {
-                    "key": key
+                "Records": [
+                {
+                    "s3": {
+                    "bucket": {
+                        "name": bucket
+                    },
+                    "object": {
+                        "key": key
+                    }
+                    }
                 }
-                }
+                ]
             }
-            ]
-        }
     )
 
     return event
+
+def mockQueryResponse():
+    response = dict(
+            {
+                "Records": [
+                {
+                    "description": "image A description",
+                    "download_url": "https://s3.com/A",
+                    "thumbnail_url": "https://thumb.com/A",
+                    "created": "20210413"
+                },
+                {
+                    "description": "image B description",
+                    "download_url": "https://s3.com/B",
+                    "thumbnail_url": "https://thumb.com/B",
+                    "created": "20210412"
+                }
+                ]
+            }
+    )
+    return response
 
 def S3BucketExists(s3_client, bucket_name):
     # Boto3 S3 client methods https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html
