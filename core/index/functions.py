@@ -57,18 +57,23 @@ def mockS3Trigger(bucket, key):
 def mockQueryResponse():
     response = dict(
             {
-                "Records": [
+                "Items": [
                 {
                     "description": "image A description",
                     "download_url": "https://s3.com/A",
                     "thumbnail_url": "https://thumb.com/A",
-                    "created": "20210413"
+                    "created": "20210413",
+                    "keywords_match": ['word1','word2'],
+                    "keywords_nomatch": ['word10', 'word11']
+
                 },
                 {
                     "description": "image B description",
                     "download_url": "https://s3.com/B",
                     "thumbnail_url": "https://thumb.com/B",
-                    "created": "20210412"
+                    "created": "20210412",
+                    "keywords_match": ['word1','word2', 'word10'],
+                    "keywords_nomatch": ['word11']                    
                 }
                 ]
             }
