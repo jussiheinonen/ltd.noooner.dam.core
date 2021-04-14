@@ -85,22 +85,22 @@ $ aws dynamodb scan \
     --endpoint-url http://localhost:4566
 ```
 
-### List items in DynamoDB table based on keyword
+### List items in DynamoDB table based on field n_search
 ```
 $ aws dynamodb scan \
     --table-name ${INDEX_TABLE} \
-    --filter-expression 'contains(keywords,:key)' \
-    --expression-attribute-values '{":key":{"S":"Toyota"}}' \
+    --filter-expression 'contains(n_search,:key)' \
+    --expression-attribute-values '{":key":{"S":"madrid"}}' \
     --endpoint-url http://localhost:4566
 ```
 
-### List select fields in DynamoDB table based on keyword
+### List select fields in DynamoDB table based on field n_search
 ```
 $ aws dynamodb scan \
     --table-name ${INDEX_TABLE} \
-    --projection-expression "headline,original_filename" \
-    --filter-expression 'contains(keywords,:key)' \
-    --expression-attribute-values '{":key":{"S":"Toyota"}}' \
+    --projection-expression "id, n_search, headline,original_filename" \
+    --filter-expression 'contains(n_search,:key)' \
+    --expression-attribute-values '{":key":{"S":"madrid"}}' \
     --endpoint-url http://localhost:4566
 ```
 

@@ -1,4 +1,5 @@
 import json, os, time
+from pprint import pprint
 import urllib.parse
 import boto3
 from iptcinfo3 import IPTCInfo
@@ -32,6 +33,31 @@ else:
     s3_client = boto3.client('s3')
     ddb_client = boto3.client('dynamodb')
 
+def addSearchField(info):
+    """ Extract fields of interest, lowercase all and add into n_search field """
+    str_search = ''
+    fields_of_interest = [
+            'keywords',
+            'caption/abstract',
+            'headline'
+    ]
+    for field in fields_of_interest:
+        try:
+            if info[field]:
+                #print('EXTRACTING: ' + str(info[field]).lower())
+                if type(info[field]) is list:
+                   mystr = ' '.join(info[field])
+                elif type(info[field]) is str:
+                   mystr = info[field]
+                mystr = mystr.lower()
+                str_search = str_search + ' ' + mystr
+        except KeyError:
+            print('OOOPS! No field ' + field + ' for search')
+
+    print('str_search: ' + str_search)
+    list_search = str_search.split(' ')
+    info['n_search'] = list( dict.fromkeys(list_search)) #Remove duplicates from the list_search and place the list in dictionary
+    return info
 
 def lambda_handler(event, context):
     #print("Received event: " + json.dumps(event, indent=2))
@@ -95,6 +121,8 @@ def lambda_handler(event, context):
         if len(dict_info) == 0:
             print('No IPTC data found')
         else:
+            dict_info = addSearchField(dict_info) # Construct custom search field
+
             # About DDB schema https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/SampleData.html
             #print('Dictionary object dict_info has ' + str(len(dict_info)) + " items")
             writeDictionaryToDDB(dict_info, INDEX_TABLE, ddb_client)
