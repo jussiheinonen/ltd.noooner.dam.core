@@ -104,6 +104,25 @@ $ aws dynamodb scan \
     --endpoint-url http://localhost:4566
 ```
 
+### List items newer than 10 minutes
+
+Field upload_time indicates Unix time when item was added to the database.
+
+```
+# Show Unix time 10 minutes ago
+$ expr $(date +%s) - 600
+1618570726
+```
+Specify Unix time in --expression-attribute-value
+```
+aws dynamodb scan \
+    --table-name ${INDEX_TABLE} \
+    --projection-expression "id, upload_time, original_filename" \
+    --filter-expression 'upload_time >= :t' \
+    --expression-attribute-values '{":t":{"N":"1618570726"}}' \
+    --endpoint-url http://localhost:4566
+```
+
 ### Creating S3 bucket
 ```
 $ aws s3 mb s3://${BUCKET_NAME} --endpoint-url http://localhost:4566
