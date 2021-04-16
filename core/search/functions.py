@@ -11,11 +11,12 @@ def createDDBObject(dict):
     id = dict['md5'] # Use md5 checksum as a primary key
     ddb_item = { 'id' : {'S': str(id)} }
     for key, value in dict.items():
-        type = isTypeOf(value)
-        if type == 'SS': 
+        ddb_type = isTypeOf(value)
+        if ddb_type == 'SS':
             value = list( dict.fromkeys(value)) #remove duplicates on the list / stringset, prevent error "Input collection []  contains duplicates"
-        #print("'" + str(key) + "': {" + "'" + type + "':" + "'" + str(value) + "'}")
-        type_value = { type : value }
+        if ddb_type == 'N':
+            value = str(value)
+        type_value = { ddb_type : value }
         ddb_item[key] = type_value
     return ddb_item
 
@@ -24,8 +25,15 @@ def isTypeOf(value):
 
     if type(value) is list: # Stringset 
         return 'SS'
-    elif type(value) is dict: # Map :
+    elif type(value) is dict: # Map
         return 'M'
+    elif type(value) is int:
+        '''
+        Integers stored as a type Number
+        Int must be converted to String before inserting into DynamoDB
+        More info https://boto3.amazonaws.com/v1/documentation/api/latest/_modules/boto3/dynamodb/types.html
+        '''
+        return 'N'
     else:
         return 'S'
 
