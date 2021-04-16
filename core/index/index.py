@@ -33,18 +33,33 @@ else:
     s3_client = boto3.client('s3')
     ddb_client = boto3.client('dynamodb')
 
+def listSanitiser(list):
+    lessThan = 3
+    tmp_list = []
+    conjunctions = ['and', 'the', 'was']
+    
+    for each in list:
+        if len(each) < lessThan:
+            print('Removing item ' + str(each) + ' (less than ' + str(lessThan) + ' chars)')
+        elif each in conjunctions:
+            print('Removing item ' + str(each) + ' (conjunction)')
+        else:
+            tmp_list.append(each)
+         
+    return tmp_list
+
 def addSearchField(info):
     """ Extract fields of interest, lowercase all and add into n_search field """
     str_search = ''
     fields_of_interest = [
             'keywords',
             'caption/abstract',
-            'headline'
+            'headline',
+            'original_filename'
     ]
     for field in fields_of_interest:
         try:
             if info[field]:
-                #print('EXTRACTING: ' + str(info[field]).lower())
                 if type(info[field]) is list:
                    mystr = ' '.join(info[field])
                 elif type(info[field]) is str:
@@ -53,10 +68,10 @@ def addSearchField(info):
                 str_search = str_search + ' ' + mystr
         except KeyError:
             print('OOOPS! No field ' + field + ' for search')
-
-    print('str_search: ' + str_search)
+    
     list_search = str_search.split(' ')
-    info['n_search'] = list( dict.fromkeys(list_search)) #Remove duplicates from the list_search and place the list in dictionary
+    list_search = list( dict.fromkeys(list_search)) #Remove duplicates from the list_search and place the list in dictionary
+    info['n_search'] = listSanitiser(list_search)
     return info
 
 def lambda_handler(event, context):
@@ -104,12 +119,12 @@ def lambda_handler(event, context):
 
             ]
 
-        upload_time_epoch = str(time.time())
+        upload_time_epoch = int(time.time())
 
         dict_info = {
             'md5': md5sum(response_body),
             'original_filename': key,
-            'upload_time_epoch': upload_time_epoch
+            'upload_time': upload_time_epoch
         }
         for field in fields:
             try:
