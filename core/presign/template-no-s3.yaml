@@ -13,6 +13,7 @@ Resources:
       CorsConfiguration:
         AllowMethods:
           - "POST"
+          - "GET"
         AllowHeaders:
           - "*"   
         AllowOrigins: 

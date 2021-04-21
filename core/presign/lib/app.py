@@ -27,7 +27,7 @@ TESTING
 
 
 def lambda_handler(event, context):
-    expiration = 300
+    default_expiration = 300
     UPLOAD_BUCKET = os.environ.get('UPLOAD_BUCKET')
     DOWNLOAD_BUCKET = os.environ.get('DOWNLOAD_BUCKET')
 
@@ -35,6 +35,20 @@ def lambda_handler(event, context):
         print('UPLOAD_BUCKET and DOWNLOAD_BUCKET environment variables unset')
         return None
     
+    http_method = event['requestContext']['http']['method']
+    print(f"HTTP method is {http_method}")
+    if http_method == 'GET':
+        try:
+            filename =  event['queryStringParameters']['filename']
+            action =  event['queryStringParameters']['action']
+            try:                
+                expiration = event['queryStringParameters']['expiration']
+            except:
+                expiration = default_expiration
+            event['body'] = {"method": action, "filename": filename,  "expiration": expiration }
+
+        except:
+            print('Failed to process GET request')
 
     #pprint(event)
 
@@ -62,11 +76,16 @@ def lambda_handler(event, context):
             bucket_name = UPLOAD_BUCKET
         else:
             print('Invalid methode ' + str(method) + '. Must be one of the get_object or put_object')
-            return None
+            return None    
     except ClientError as e:
         print('Parameter method not found')
         logging.error(e)
-        return None 
+        return None
+    try: 
+        expiration = payload['expiration']
+    except:
+        expiration = default_expiration
+            
     try:
         response = s3_client.generate_presigned_url(method,
                                                     Params={'Bucket': bucket_name,
