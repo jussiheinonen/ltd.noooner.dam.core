@@ -21,12 +21,14 @@ fi
 SETTINGS[INDEX_TABLE]="ltd.noooner.dam.core.index" 
 SETTINGS[UPLOAD_BUCKET]="ltd.noooner.dam.core.upload"
 SETTINGS[DOWNLOAD_BUCKET]="ltd.noooner.dam.core.download"
+SETTINGS[PRESIGN_ENDPOINT_URL]="https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/presign"
 SETTINGS[IS_OFFLINE]="true"
 
 
 read -p "DynamoDB table name for Index data? [default: ${SETTINGS[INDEX_TABLE]}] " TMP_SETTINGS[INDEX_TABLE]
 read -p "S3 bucket name for UPLOAD? [default: ${SETTINGS[UPLOAD_BUCKET]}] " TMP_SETTINGS[UPLOAD_BUCKET]
 read -p "S3 bucket name for DOWNLOAD? [default: ${SETTINGS[DOWNLOAD_BUCKET]}] " TMP_SETTINGS[DOWNLOAD_BUCKET]
+read -p "Presign URL endpoint? [default: ${SETTINGS[PRESIGN_ENDPOINT_URL]}] " TMP_SETTINGS[PRESIGN_ENDPOINT_URL]
 read -p "Using LocalStack for backend services? [default: ${SETTINGS[IS_OFFLINE]}] " TMP_SETTINGS[IS_OFFLINE]
 
 for each in ${!SETTINGS[*]}; do
@@ -41,6 +43,7 @@ done
 export INDEX_TABLE=${SETTINGS[INDEX_TABLE]}
 export UPLOAD_BUCKET=${SETTINGS[UPLOAD_BUCKET]}
 export DOWNLOAD_BUCKET=${SETTINGS[DOWNLOAD_BUCKET]}
+export PRESIGN_ENDPOINT_URL=${SETTINGS[PRESIGN_ENDPOINT_URL]}
 export IS_OFFLINE=${SETTINGS[IS_OFFLINE]}
 
 read -p "Create LocalStack resources? [y/n]" localstack
