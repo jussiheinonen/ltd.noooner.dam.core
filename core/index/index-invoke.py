@@ -11,7 +11,7 @@ CLI tool for...
 
 To bulk feed images...
     for file in $(ls ../uploads/); do
-        ./index-invoke.py --filename ../uploads/${file} --bucketname ltd.noooner.dam.core.upload
+        ./index-invoke.py --filename ../uploads/${file}
     done
 '''
 UPLOAD_BUCKET = os.environ.get('UPLOAD_BUCKET')
