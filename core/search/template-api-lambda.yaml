@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SAM template for SEARCH endpoint
+  1ST DEPLOY: sam build -t template-api-lambda.yaml && sam deploy --guided -t template-api-lambda.yaml
+  CI DEPLOY: sam build -t template-api-lambda.yaml && sam deploy -t template-api-lambda.yaml
+  DESTROY: aws cloudformation delete-stack --stack-name ltd-noooner-search --region eu-west-1
+
+Resources:
+  # HTTP API
+  SearchApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowMethods:
+          - "GET"
+        AllowHeaders:
+          - "*"   
+        AllowOrigins: 
+          - "*"      
+
+  ## Lambda function
+  SearchlFunction:
+    # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: .
+      Handler: search.lambda_handler
+      Runtime: python3.8
+      Timeout: 10
+      MemorySize: 128
+      Environment:
+        Variables:
+          INDEX_TABLE: "ltd.noooner.dam.core.index.ltd-noooner-index"
+          PRESIGN_ENDPOINT_URL: "https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/presign"
+      # SAM Policy template list https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: "ltd.noooner.dam.core.index.ltd-noooner-index"
+      Events:
+        SearchAPI:
+          Type: HttpApi
+          Properties:
+            Path: /search
+            Method: get
+            ApiId: !Ref SearchApi  
+
+## Take a note of the outputs for deploying the workflow templates in this sample application
+Outputs:
+  APIendpoint:
+    Description: "HTTP API endpoint URL for Search"
+    Value: !Sub "https://${SearchApi}.execute-api.${AWS::Region}.amazonaws.com/search"
+  DestroyStack:
+    Description: "Delete stack command"
+    Value: !Sub "aws cloudformation delete-stack --stack-name ${AWS::StackName} --region ${AWS::Region}"
