@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 from search import lambda_handler
+import argparse
+from pprint import pprint
 
-def mockAPITriggerGET(query_string_parameters = None):
+def mockAPITrigger(query_string_parameters = None, method = 'GET'):
     if query_string_parameters:
         query = query_string_parameters
     else:
@@ -55,7 +57,7 @@ def mockAPITriggerGET(query_string_parameters = None):
                         "domainName": "id.execute-api.us-east-1.amazonaws.com",
                         "domainPrefix": "id",
                         "http": {
-                        "method": "POST",
+                        "method": method,
                         "path": "/my/path",
                         "protocol": "HTTP/1.1",
                         "sourceIp": "IP",
@@ -80,6 +82,15 @@ def mockAPITriggerGET(query_string_parameters = None):
     )
     return event
 
-payload = mockAPITriggerGET('testing+this+param+insert')
+parser = argparse.ArgumentParser(description='Search a record based on keyword')
+parser.add_argument('-w', '--word', dest='word', required=True, help="Keyword to search in DynamoDB")
+parser.add_argument('-m', '--method', dest='method', default='GET', help="HTTP method, eg. GET|POST")
+args = parser.parse_args()
 
-lambda_handler(payload, None)
+word = args.word
+method= args.method
+payload = mockAPITrigger(word, method)
+
+results = lambda_handler(payload, None)
+
+print('HERE IS WHAT WE GOT: ' + str(results))
