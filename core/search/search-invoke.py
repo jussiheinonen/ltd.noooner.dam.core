@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from search import lambda_handler
-import argparse
+import argparse, sys
 from pprint import pprint
 
 def mockAPITrigger(query_string_parameters = None, method = 'GET'):
@@ -82,6 +82,39 @@ def mockAPITrigger(query_string_parameters = None, method = 'GET'):
     )
     return event
 
+def mockSearchResults():
+    '''
+    Proposal for document structure for search results of multiple keywords search
+    3 keyword search: q=real+madrid+white
+    '''
+    ids_per_keyword = {
+        "real": [ "f21c81d1d5f9d8303fbffb9b325ee236", "db70be6b0173e1b4aafcb9d49151cfaf" ],
+        "madrid": [ "f21c81d1d5f9d8303fbffb9b325ee236", "db70be6b0173e1b4aafcb9d49151cfaf" ],
+        "white": [ "9e09840ecc13c72fa6c4f75db20ca29e", "cf545fd7526d8ff21e5737b529be9621" ]
+    }
+
+    programmatic_keywords_per_id = swapDictKeysAndValues(ids_per_keyword)
+
+    return programmatic_keywords_per_id
+
+def swapDictKeysAndValues(ids_per_keyword):
+    '''
+    Process dictionary keys and values and swap them around so they look like keywords_per_id
+    '''
+    keywords_per_id = {
+        "f21c81d1d5f9d8303fbffb9b325ee236": [ "real", "madrid" ],
+        "db70be6b0173e1b4aafcb9d49151cfaf": [ "real", "madrid" ],
+        "9e09840ecc13c72fa6c4f75db20ca29e": [ "white" ],
+        "cf545fd7526d8ff21e5737b529be9621": [ "white" ]
+    }
+    id_keywords = {}
+    for key, value_lst in ids_per_keyword.items():
+        for id in value_lst:
+            #print('Adding keyword ' + str(key) + ' against id ' + str(id))
+            id_keywords.setdefault(id, []).append(key) # Solution provided by Paul Panzer in https://stackoverflow.com/questions/43060655/update-values-of-a-list-of-dictionaries-in-python
+    return id_keywords
+
+
 parser = argparse.ArgumentParser(description='Search a record based on keyword')
 parser.add_argument('-w', '--word', dest='word', required=True, help="Keyword to search in DynamoDB")
 parser.add_argument('-m', '--method', dest='method', default='GET', help="HTTP method, eg. GET|POST")
@@ -89,8 +122,16 @@ args = parser.parse_args()
 
 word = args.word
 method= args.method
+
+'''
+results = mockSearchResults()
+pprint(results)
+sys.exit(0)
+'''
+
 payload = mockAPITrigger(word, method)
 
 results = lambda_handler(payload, None)
 
-print('HERE IS WHAT WE GOT: ' + str(results))
+print('HERE IS WHAT WE GOT:')
+pprint(results)
