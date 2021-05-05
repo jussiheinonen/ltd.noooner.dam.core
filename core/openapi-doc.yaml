@@ -1,0 +1,67 @@
+openapi: 3.0.3
+info:
+  title: Presign and Search API
+  description: OpenAPI v3 documentation for ltd.noooner.dam.core APIs
+  contact:
+    name: Jussi Heinonen
+    email: jussi.heinonen@noooner.ltd
+  version: '0.0.1'
+servers:
+  - url: https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com
+    description: Base URL for uploads and downloads
+  - url: https://yibz2ntz2d.execute-api.eu-west-1.amazonaws.com
+    description: Base URL for search
+
+paths:
+  /presign:
+    get:
+      summary: Returns an URL for downloading/uploading an object
+      parameters: 
+        - in: query
+          name: filename
+          schema:
+            type: string
+          description: The filename to acquire download/upload link for. Example value elisa.jpg
+        - in: query
+          name: action
+          schema:
+            type: string
+            enum: ['get_object', 'put_object']
+        - in: query
+          name: expiration
+          required: false
+          schema:
+            type: integer
+          description: Optional Presign URL validity period in seconds. Example value 300 for 5 minutes until URL expires.
+      responses:
+        '200':
+          description: OK
+          content:
+            'application/json':
+              schema:
+                type: string
+    post:
+      summary: Returns an URL for downloading/uploading an object
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: string
+                action:
+                  type: string
+                  enum: ['get_object', 'put_object']
+                expiration:
+                  type: integer
+                  default: 300
+                  
+      responses:
+        '200':
+          description: OK
+          content:
+            'application/json':
+              schema:
+                type: string                
