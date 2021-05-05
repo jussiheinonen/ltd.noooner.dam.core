@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+'''
+EXAMPLE GET REQUEST
+https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/presign?filename=train01.jpg&action=get_object&expiration=500
+'''
+
 from app import lambda_handler
 import argparse
     
@@ -86,7 +91,7 @@ def mockAPITrigger(filename = 'file1', method = 'GET', action = 'put_object', ex
                         "time": "12/Mar/2020:19:03:58 +0000",
                         "timeEpoch": 1583348638390
                     },
-                    "body": {"method": action, "filename": filename,  "expiration": expiration },
+                    "body": {"action": action, "filename": filename,  "expiration": expiration },
                     "pathParameters": {
                         "parameter1": "value1"
                     },
@@ -109,7 +114,7 @@ def mockAPITriggerPOST(bucket, key, expiration=300):
 
 parser = argparse.ArgumentParser(description='Generate Presign URL from either POST or GET')
 parser.add_argument('-f', '--filename', dest='filename', required=True, help="Filename to generate URL for")
-parser.add_argument('-o', '--action', dest='action', required=True, help="put_object or get_object")
+parser.add_argument('-a', '--action', dest='action', required=True, help="put_object or get_object")
 parser.add_argument('-m', '--method', dest='method', default='GET', help="HTTP method, eg. GET|POST")
 parser.add_argument('-e', '--expiration', dest='expiration', default='300', help="URL expiry in seconds")
 args = parser.parse_args()

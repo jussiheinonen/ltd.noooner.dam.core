@@ -45,7 +45,7 @@ def lambda_handler(event, context):
                 expiration = event['queryStringParameters']['expiration']
             except:
                 expiration = default_expiration
-            event['body'] = {"method": action, "filename": filename,  "expiration": expiration }
+            event['body'] = {"action": action, "filename": filename,  "expiration": expiration }
 
         except:
             print('Failed to process GET request')
@@ -69,16 +69,16 @@ def lambda_handler(event, context):
         logging.error(e)
         return None
     try:
-        method = payload['method']
-        if method == "get_object":
+        action = payload['action']
+        if action == "get_object":
             bucket_name = DOWNLOAD_BUCKET
-        elif method == "put_object":
+        elif action == "put_object":
             bucket_name = UPLOAD_BUCKET
         else:
-            print('Invalid methode ' + str(method) + '. Must be one of the get_object or put_object')
+            print('Invalid action ' + str(action) + '. Must be one of the get_object or put_object')
             return None    
     except ClientError as e:
-        print('Parameter method not found')
+        print('Parameter action not found')
         logging.error(e)
         return None
     try: 
@@ -87,13 +87,17 @@ def lambda_handler(event, context):
         expiration = default_expiration
             
     try:
-        response = s3_client.generate_presigned_url(method,
+        response = s3_client.generate_presigned_url(action,
                                                     Params={'Bucket': bucket_name,
                                                             'Key': object_name},
                                                     ExpiresIn=expiration)
     except ClientError as e:
         logging.error(e)
         return None
+
+    response = {
+        'response': response
+    }
 
     # The response contains the presigned URL
     pprint(response)
