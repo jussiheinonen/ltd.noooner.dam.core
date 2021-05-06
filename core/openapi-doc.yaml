@@ -8,15 +8,15 @@ info:
   version: '0.0.1'
 servers:
   - url: https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com
-    description: Base URL for uploads and downloads
+    description: Base URL for Presign endpoint
   - url: https://yibz2ntz2d.execute-api.eu-west-1.amazonaws.com
-    description: Base URL for search
+    description: Base URL for Search endpoint
 
 paths:
   /presign:
     get:
       summary: Returns an URL for downloading/uploading an object
-      parameters: 
+      parameters:
         - in: query
           name: filename
           schema:
@@ -64,4 +64,21 @@ paths:
           content:
             'application/json':
               schema:
-                type: string                
+                type: string
+
+  /search:
+    get:
+      summary: Search objects by keywords
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Specify keywords separated by + sign. Example query /search?q=real+madrid+champions
+      responses:
+        '200':
+          description: OK
+          content:
+            'application/json':
+              schema:
+                type: string
