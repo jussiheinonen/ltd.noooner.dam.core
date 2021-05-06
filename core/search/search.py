@@ -1,6 +1,6 @@
 from functions import *
 from pprint import pprint
-import boto3, json, os, time
+import boto3, json, os, time, re
 
 IS_OFFLINE = os.environ.get('IS_OFFLINE')
 INDEX_TABLE = os.environ.get('INDEX_TABLE')
@@ -151,7 +151,7 @@ def find_ids_per_keyword(results):
 def lambda_handler(event, context):
     params = event['queryStringParameters']['q']
     print(f"Query Parameters {params}")
-    lst_params = params.split(' ') # Split at whitespace, not + sign. API GW appears to substitute + with whitespace
+    lst_params = re.split("[+ ]", params)
     print('Number of params ' + str(len(lst_params)))
 
     response={} 
