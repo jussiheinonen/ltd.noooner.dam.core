@@ -8,9 +8,9 @@ info:
   version: '0.0.1'
 servers:
   - url: https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com
-    description: Base URL for Presign endpoint
+    description: Presign endpoint Base URL
   - url: https://yibz2ntz2d.execute-api.eu-west-1.amazonaws.com
-    description: Base URL for Search endpoint
+    description: Search endpoint Base URL
 
 paths:
   /presign:
