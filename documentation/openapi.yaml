@@ -1,11 +1,13 @@
 openapi: 3.0.3
 info:
   title: Presign and Search API
-  description: OpenAPI v3 documentation for ltd.noooner.dam.core APIs
+  description: > 
+    OpenAPI v3 documentation for ltd.noooner.dam.core APIs.
+    Currently split across 2 endpoint URLS (see servers block for details)
   contact:
     name: Jussi Heinonen
     email: jussi.heinonen@noooner.ltd
-  version: '0.0.1'
+  version: '0.0.2'
 servers:
   - url: https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com
     description: Presign endpoint Base URL
@@ -40,6 +42,12 @@ paths:
             'application/json':
               schema:
                 type: string
+        '404':
+          description: NOT FOUND
+          content:
+            'application/json':
+              schema:
+                type: string   
     post:
       summary: Returns an URL for downloading/uploading an object
       requestBody:
@@ -64,6 +72,12 @@ paths:
             'application/json':
               schema:
                 type: string
+        '404':
+          description: NOT FOUND
+          content:
+            'application/json':
+              schema:
+                type: string                
 
   /search:
     get:
@@ -81,3 +95,9 @@ paths:
             'application/json':
               schema:
                 type: string
+        '404':
+          description: NOT FOUND
+          content:
+            'application/json':
+              schema:
+                type: string                  
