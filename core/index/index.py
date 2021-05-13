@@ -125,6 +125,7 @@ def lambda_handler(event, context):
             'md5': md5sum(response_body),
             'original_filename': key,
             'upload_time': upload_time_epoch
+            #'thumbnail_url': 'https://s3-eu-west-1.amazonaws.com/ltd.noooner.dam.core.thumbnails/00000000000000000000000000000000.jpg'
         }
         for field in fields:
             try:
