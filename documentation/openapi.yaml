@@ -41,7 +41,7 @@ paths:
           content:
             'application/json':
               schema:
-                type: string
+                $ref: '#/components/schemas/PresignUrlResponse'
         '404':
           description: NOT FOUND
           content:
@@ -71,7 +71,7 @@ paths:
           content:
             'application/json':
               schema:
-                type: string
+                $ref: '#/components/schemas/PresignUrlResponse'
         '404':
           description: NOT FOUND
           content:
@@ -101,3 +101,15 @@ paths:
             'application/json':
               schema:
                 type: string                  
+
+# Descriptions of common components
+components:
+  schemas:
+    PresignUrlResponse:
+      type: object
+      properties:        
+        response:
+          type: string
+          description: >
+            Cryptographically signed URL providing time-limited permission to upload/download objects to/from S3 bucket
+          example: https://s3.eu-west-1.amazonaws.com/ltd.noooner.dam.core.download/noooner.png?AWSAccessKeyId=AKIAVE5GOT0123456789&Signature=rw2PPivEeW%2Fo7CkqNKg6jqH1oWo%3D&Expires=1621080907
