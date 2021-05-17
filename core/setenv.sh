@@ -49,11 +49,11 @@ export THUMBNAIL_BUCKET=${SETTINGS[THUMBNAIL_BUCKET]}
 export PRESIGN_ENDPOINT_URL=${SETTINGS[PRESIGN_ENDPOINT_URL]}
 export IS_OFFLINE=${SETTINGS[IS_OFFLINE]}
 
-read -p "Create LocalStack resources? [y/n]" localstack
-
-if [[ "${localstack}" == "y" ]]; then
-    source $(find ../ -name localstack-resources.sh)
-else
-    echo "Skipping LocalStack resource creations"
+if [[ "${SETTINGS[IS_OFFLINE]}" == "true" ]]; then # Only ask to set up Localstack resources if working in isolation
+    read -p "Create LocalStack resources? [y/n]" localstack
+    if [[ "${localstack}" == "y" ]]; then
+        source $(find ../ -name localstack-resources.sh)
+    else
+        echo "Skipping LocalStack resource creations"
+    fi
 fi
-
