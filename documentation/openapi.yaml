@@ -87,14 +87,14 @@ paths:
           name: q
           schema:
             type: string
-          description: Specify keywords separated by + sign. Example query /search?q=real+madrid+champions
+          description: Specify keywords separated by + sign or whitespace. Example query /search?q=real+madrid+champions
       responses:
         '200':
           description: OK
           content:
             'application/json':
               schema:
-                type: string
+                $ref: '#/components/schemas/SearchResponse'
         '404':
           description: NOT FOUND
           content:
@@ -113,3 +113,39 @@ components:
           description: >
             Cryptographically signed URL providing time-limited permission to upload/download objects to/from S3 bucket
           example: https://s3.eu-west-1.amazonaws.com/ltd.noooner.dam.core.download/noooner.png?AWSAccessKeyId=AKIAVE5GOT0123456789&Signature=rw2PPivEeW%2Fo7CkqNKg6jqH1oWo%3D&Expires=1621080907
+    SearchResponse:
+      type: object
+      properties:
+        id:
+          type: object
+          description: Object id, md5sum of the original, used as a primary key in DynamoDB
+          properties:
+            get_download_url:
+              type: string
+              format: url
+              description: URL of Presign API for requesting time-limited download URL for an image/object
+              example: https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/presign?filename=GettyImages-801871502.jpg&action=get_object
+            headline:
+              type: string
+              description: Content of the field headline in IPTC metadata
+              example: "Views Of The Remains Of The Grenfell Tower Block"
+            upload_time:
+              type: string
+              format: date-time
+              description: Date and time when image was uploaded to the system
+              example: "2021-04-20 13:19:06"
+            thumbnail_url:
+              type: string
+              format: url
+              description: URL to preview image (small size) to display with search result
+              example: https://s3-eu-west-1.amazonaws.com/ltd.noooner.dam.core.thumbnails/00000000000000000000000000000000.jpg
+            matching_keywords:
+              type: array
+              items:
+                type: string
+              description: Keyword used in search that matches the image metadata
+              example: [ "real", "madrid" ]
+            relevance:
+              type: integer
+              description: Relevance score. Higher number is considered more relevant than lower number.
+              example: 2
