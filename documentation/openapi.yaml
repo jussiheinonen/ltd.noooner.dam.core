@@ -123,7 +123,11 @@ components:
             get_download_url:
               type: string
               format: url
-              description: URL of Presign API for requesting time-limited download URL for an image/object
+              description: >
+                URL for Presign API to request time-limited download URL for an image/object
+                When firing a request as seen in the example field below, the API returns an URL similar to
+                https://s3.eu-west-1.amazonaws.com/ltd.noooner.dam.core.download/GettyImages-801871502.jpg?AWSAccessKeyId=AKIAVE5GOT0123456789&Signature=rw2PPivEeW%2Fo7CkqNKg6jqH1oWo%3D&Expires=1621080907
+                Presign URL received in response can be used to download the original image
               example: https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/presign?filename=GettyImages-801871502.jpg&action=get_object
             headline:
               type: string
