@@ -56,7 +56,9 @@ The easiest way to experiment with download functionality is via Search API. Sea
 
 Endpoint URL: https://yibz2ntz2d.execute-api.eu-west-1.amazonaws.com
 
-TO BE EXPANDED
+##### Example Search API request
+
+[https://yibz2ntz2d.execute-api.eu-west-1.amazonaws.com/search?q=real+madrid+champions+league+football](https://yibz2ntz2d.execute-api.eu-west-1.amazonaws.com/search?q=real+madrid+champions+league+football)
 
 ## OpenAPI plug-in for VS Code
 
