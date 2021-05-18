@@ -37,7 +37,7 @@ paths:
           description: Optional Presign URL validity period in seconds. Example value 300 for 5 minutes until URL expires.
       responses:
         '200':
-          description: OK
+          description: A time-limited URL to enable upload/download directly to S3 bucket
           content:
             'application/json':
               schema:
@@ -90,7 +90,7 @@ paths:
           description: Specify keywords separated by + sign or whitespace. Example query /search?q=real+madrid+champions
       responses:
         '200':
-          description: OK
+          description: Search results matching keywords
           content:
             'application/json':
               schema:
