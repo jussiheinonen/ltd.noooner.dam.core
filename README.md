@@ -5,16 +5,14 @@ Upload, Index, Search and Download endpoints
 # Setting up local dev environment
 
 Local dev environment consists of 2 components
-* [serverless-wsgi](https://www.serverless.com/plugins/serverless-wsgi) front-end 
+
+* [Wiren](https://github.com/localstack/localstack) front-end
 * [Localstack](https://github.com/localstack/localstack) backend
 
 ## Starting front-end
 
-Serverless WSGI is provided by [Wiren dev environment](https://github.com/jussiheinonen/wiren)
+`core/docker_run.sh` + select option 2.
 
-Once Docker image is built you can start the container it by running the command
-
-`sudo docker run --rm --entrypoint /bin/bash -v $(pwd)/core:/usr/app/core --net=host -it wiren:alpine`
 
 ### Set environment variables
 
@@ -28,15 +26,9 @@ Setting default IS_OFFLINE true
 Setting default BUCKET_NAME ltd.noooner.dam.core
 ```
 
-### Start WSGI server
-```
-cd core
-sls wsgi serve
-```
-
 ## Starting backend
 
-`sudo docker run --rm -p 4566:4566 -p 4571:4571 localstack/localstack`
+`core/docker_run.sh` + select option 1.
 
 # Command line actions
 
@@ -44,9 +36,14 @@ sls wsgi serve
 
 Example commands on how to interact with API using curl
 
-### Uploading a file
+### Uploading and indexing a file
 
-`curl -i -X POST -F file=@core/uploads/elisa.jpg http://localhost:5000/upload`
+On Wiren dev runtime...
+```
+cd core/index
+./index-invoke.py --filename ../uploads/${file}
+
+```
 
 ## AWS CLI
 
