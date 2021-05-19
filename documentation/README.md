@@ -83,7 +83,7 @@ The easiest way to experiment with download functionality is via Search API. Sea
 Endpoint URL: https://yibz2ntz2d.execute-api.eu-west-1.amazonaws.com
 
 ##### Description
-Search API is used for searching image metadata. Request parameter `q=` specifices a list of keywords that is compared to image metadata. Images matching keywords are included in the results set that is returned to client. 
+Search API is used for searching image metadata. Request parameter `q=` specifices a list of keywords that is compared to image metadata. Images matching keywords are included in the results set that is returned to the client. 
 
 ##### HTTP methods
 Supported method is GET. 
