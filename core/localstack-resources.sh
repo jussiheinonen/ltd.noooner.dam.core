@@ -45,5 +45,5 @@ else
 fi
 
 createIndexTable
-createBucket "${UPLOAD_BUCKET}" "${DOWNLOAD_BUCKET}"
+createBucket "${UPLOAD_BUCKET}" "${DOWNLOAD_BUCKET}" "${THUMBNAIL_BUCKET}"
 
