@@ -20,7 +20,7 @@ Instead, upload and download functionalities are enabled by Presign API.
 
 ##### HTTP methods
 
- * To request presigned url use GET or POST
+ * To request a presigned url use GET or POST
  * To upload a file to S3 use PUT
  * To download a file from S3 use GET
 
