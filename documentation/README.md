@@ -18,6 +18,33 @@ Presigned URL in the Noooner DAM stack is used for uploading images into the sys
 In other words, Noooner DAM stack _does not_ have dedicated APIs for uploads and downloads. 
 Instead, upload and download functionalities are enabled by Presign API.
 
+##### HTTP methods
+
+Supported methods to request presigned url are GET and POST.
+
+###### GET example
+
+Upload URL: `/presign?filename=noooner_m.png&action=put_object`
+Download URL: `/presign?filename=noooner_m.png&action=get_object`
+
+###### POST example
+
+```
+# Upload URL
+/presign -d \
+{
+    "filename": "noooner_m.png",
+    "action": "put_object"
+}
+
+# Download URL
+/presign -d \
+{
+    "filename": "noooner_m.png",
+    "action": "get_object"
+}
+```
+
 ##### Uploading an image
 
 Uploading an image involves 2 requests
@@ -53,8 +80,13 @@ The easiest way to experiment with download functionality is via Search API. Sea
 
 ### Search API
 #### ...for Searching images
-
 Endpoint URL: https://yibz2ntz2d.execute-api.eu-west-1.amazonaws.com
+
+##### Description
+Search API is used for searching image metadata. Request parameter `q=` specifices a list of keywords that is compared to image metadata. Images matching keywords are included in the results set that is returned to client. 
+
+##### HTTP methods
+Supported method is GET. 
 
 ##### Example Search API request
 
