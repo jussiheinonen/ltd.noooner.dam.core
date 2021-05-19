@@ -20,7 +20,9 @@ Instead, upload and download functionalities are enabled by Presign API.
 
 ##### HTTP methods
 
-Supported methods to request presigned url are GET and POST.
+ * To request presigned url use GET or POST
+ * To upload a file to S3 use PUT
+ * To download a file from S3 use GET
 
 ###### GET example
 
@@ -49,8 +51,8 @@ Download URL: `/presign?filename=noooner_m.png&action=get_object`
 
 Uploading an image involves 2 requests
 
- 1. Requesting upload URL from the Presign API
- 2. Uploading image directly to S3 using the upload URL
+ 1. Requesting upload URL from the Presign API (GET / POST)
+ 2. Uploading image directly to S3 using the upload URL (PUT)
 
 Requests paramaters and responses are described more in detail in [documentation / openapi.yaml](https://github.com/jussiheinonen/ltd.noooner.dam.core/blob/main/documentation/openapi.yaml).
 
@@ -63,7 +65,7 @@ For quick exploration here is an upload example using cUrl
 # Make note of the upload URL included in the response field as it's needed in the next step
 # {"response": "https://s3.eu-west-1.amazonaws.com/ltd.noooner.dam.core.upload.ltd-noooner-index/noooner_m.png?AWSAccessKeyId=A....
 
-# Uploading image noooner_m.png 
+# Uploading image noooner_m.png. NOTE! Use HTTP PUT request to push image into S3 bucket
   curl -X PUT -T noooner_m.png 'https://s3.eu-west-1.amazonaws.com/ltd.noooner.dam.core.upload.ltd-noooner-index/noooner_m.png?AWSAccessKeyId=A
 ```
 
@@ -71,8 +73,8 @@ For quick exploration here is an upload example using cUrl
 
 Downloading image is a nearly idendtical process to uploading image
 
- 1. Requesting dwonload URL from the Presign API
- 2. Downloading image directly from S3 using the download URL
+ 1. Requesting download URL from the Presign API (GET / POST)
+ 2. Downloading image directly from S3 using the download URL (GET)
 
 The only difference in request sent to Presign API is the _action_ parameter that has value _get_object_ (put_object action is used for upload)
 
