@@ -112,6 +112,34 @@ def S3Del(s3_client, file_name, bucket_name):
         return False
     return True    
 
+def S3Get(s3_client, file_name, bucket_name):
+    '''
+    :param s3_client: Boto3 client object
+    :param file_name: File to get
+    :param bucket_name: Bucket to get from
+
+    Returns
+    ------
+    File object
+
+    '''
+
+    try:
+        response = s3_client.get_object(
+            Key=file_name,
+            Bucket=bucket_name)
+
+    except ClientError as e:
+        logging.error(e)
+        return False
+
+    response_body = response['Body'].read() # StreamingBody to bytes
+    tmp_file = '/tmp/' + md5sum(response_body)
+    with open(tmp_file, "wb") as binary_file: #Write bytes to a file
+        binary_file.write(response_body)
+
+    return tmp_file
+
 def S3Put(s3_client, file_name, bucket_name, object_name=None):
     '''
     :param s3_client: Boto3 client object
