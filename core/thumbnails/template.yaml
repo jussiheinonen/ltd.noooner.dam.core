@@ -9,35 +9,24 @@ Description: >
   DEPLOY: sudo /home/jussi/.local/bin/sam deploy --guided
   DESTROY: aws cloudformation delete-stack --stack-name ltd-noooner-thumbdev
 
+  NOTE! Event configuration is manually done for now due to reason because Download bucket lives in separate SAM //github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+        To configure S3 trigger, open Properties of bucket ltd.noooner.dam.core.upload.ltd-noooner-index
+        Add Event notification type of 'All object create events' with Destination Thumbnail Lambda function
+
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 10
+    Environment:
+      Variables:
+        THUMBNAIL_BUCKET: !Sub "ltd.noooner.dam.core.thumbnail.${AWS::StackName}"
 
 Resources:
   ThumbnailFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       PackageType: Image
-      Events:
-        NewItem:
-          Type: S3
-          Properties:
-            Bucket:
-              Ref: S3ThumbnailOrgBucket
-            Events: s3:ObjectCreated:*
       Policies:
-        - S3WritePolicy:
-            BucketName: !Sub "ltd.noooner.dam.core.thumbnailorg.${AWS::StackName}"
-        - Statement:
-          - Effect: Allow
-            Action:
-              - s3:GetObject
-              - s3:GetObjectACL
-              - s3:DeleteObject
-            Resource: 
-              - !Sub "arn:aws:s3:::ltd.noooner.dam.core.thumbnailorg.${AWS::StackName}"
-              - !Sub "arn:aws:s3:::ltd.noooner.dam.core.thumbnailorg.${AWS::StackName}/*"
         - S3ReadPolicy:
             BucketName: !Sub "ltd.noooner.dam.core.thumbnail.${AWS::StackName}"
         - Statement:
@@ -46,9 +35,12 @@ Resources:
               - s3:GetObject
               - s3:GetObjectACL
               - s3:putObject
+              - s3:PutObjectAcl
             Resource: 
               - !Sub "arn:aws:s3:::ltd.noooner.dam.core.thumbnail.${AWS::StackName}"
               - !Sub "arn:aws:s3:::ltd.noooner.dam.core.thumbnail.${AWS::StackName}/*"
+              - "arn:aws:s3:::ltd.noooner.dam.core.download.ltd-noooner-index"
+              - "arn:aws:s3:::ltd.noooner.dam.core.download.ltd-noooner-index/*"    
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./lib
@@ -56,20 +48,6 @@ Resources:
       
 
   ## S3 buckets
-  S3ThumbnailOrgBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub "ltd.noooner.dam.core.thumbnailorg.${AWS::StackName}"
-      CorsConfiguration:
-        CorsRules:
-        - AllowedHeaders:
-            - "*"
-          AllowedMethods:
-            - GET
-            - PUT
-            - HEAD
-          AllowedOrigins:
-            - "*"  
   S3ThumbnailBucket:
     Type: AWS::S3::Bucket
     Properties:
