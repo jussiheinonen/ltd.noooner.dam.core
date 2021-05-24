@@ -2,7 +2,7 @@ FROM public.ecr.aws/lambda/python:3.8
 
 # BUILD IMAGE: sudo ${HOME}/.local/bin/sam build
 
-COPY app.py requirements.txt ./
+COPY app.py functions.py requirements.txt ./
 
 RUN python3.8 -m pip install -r requirements.txt -t .
 
