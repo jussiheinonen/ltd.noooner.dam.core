@@ -80,7 +80,7 @@ def lambda_handler(event, context):
         return None
 
 
-    # Image processing commence  
+    # Image processing commencing
     print('Opening image ' + str(original_file))   
     image = Image.open(original_file)
     image_size = str(image.size)
@@ -93,7 +93,12 @@ def lambda_handler(event, context):
     image.save(original_file)
     head, tail = os.path.split(original_file) # read the original filename into tail
 
+    # Send thumbnail to S3 bucket, set public-read flag on
     print('Sending ' + tail + ' (was ' + key + ') to ' + THUMBNAIL_BUCKET)
-    S3Put(s3_client, original_file, THUMBNAIL_BUCKET, tail)
+    S3Put(s3_client, original_file, THUMBNAIL_BUCKET, tail, True)
+
+    # Tidy up file system
+    if os.path.exists(original_file):
+        os.remove(original_file)
 
     return None
