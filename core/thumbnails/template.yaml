@@ -1,0 +1,99 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  python3.8
+
+  SAM Template for thumbnails
+
+  BUILD: sudo /home/jussi/.local/bin/sam build
+  DEPLOY: sudo /home/jussi/.local/bin/sam deploy --guided
+  DESTROY: aws cloudformation delete-stack --stack-name ltd-noooner-thumbdev
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  ThumbnailFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      PackageType: Image
+      Events:
+        NewItem:
+          Type: S3
+          Properties:
+            Bucket:
+              Ref: S3ThumbnailOrgBucket
+            Events: s3:ObjectCreated:*
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Sub "ltd.noooner.dam.core.thumbnailorg.${AWS::StackName}"
+        - Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:GetObjectACL
+              - s3:DeleteObject
+            Resource: 
+              - !Sub "arn:aws:s3:::ltd.noooner.dam.core.thumbnailorg.${AWS::StackName}"
+              - !Sub "arn:aws:s3:::ltd.noooner.dam.core.thumbnailorg.${AWS::StackName}/*"
+        - S3ReadPolicy:
+            BucketName: !Sub "ltd.noooner.dam.core.thumbnail.${AWS::StackName}"
+        - Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:GetObjectACL
+              - s3:putObject
+            Resource: 
+              - !Sub "arn:aws:s3:::ltd.noooner.dam.core.thumbnail.${AWS::StackName}"
+              - !Sub "arn:aws:s3:::ltd.noooner.dam.core.thumbnail.${AWS::StackName}/*"
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./lib
+      DockerTag: dev
+      
+
+  ## S3 buckets
+  S3ThumbnailOrgBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "ltd.noooner.dam.core.thumbnailorg.${AWS::StackName}"
+      CorsConfiguration:
+        CorsRules:
+        - AllowedHeaders:
+            - "*"
+          AllowedMethods:
+            - GET
+            - PUT
+            - HEAD
+          AllowedOrigins:
+            - "*"  
+  S3ThumbnailBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "ltd.noooner.dam.core.thumbnail.${AWS::StackName}"
+      CorsConfiguration:
+        CorsRules:
+        - AllowedHeaders:
+            - "*"
+          AllowedMethods:
+            - GET
+            - PUT
+            - HEAD
+          AllowedOrigins:
+            - "*"
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  S3ThumbnailBucket:
+    Description: "Thumbnail S3 bucket ARN"
+    Value: !GetAtt S3ThumbnailBucket.Arn
+  ThumbnailFunction:
+    Description: "Thumbnail Lambda Function ARN"
+    Value: !GetAtt ThumbnailFunction.Arn
+  ThumbnailFunctionIamRole:
+    Description: "Implicit IAM Role created for Thumbnail function"
+    Value: !GetAtt ThumbnailFunctionRole.Arn
