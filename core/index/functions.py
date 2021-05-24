@@ -133,26 +133,37 @@ def S3Get(s3_client, file_name, bucket_name):
         logging.error(e)
         return False
 
+    lst_file_ext = file_name.split('.')
+    file_ext = lst_file_ext[-1]
     response_body = response['Body'].read() # StreamingBody to bytes
-    tmp_file = '/tmp/' + md5sum(response_body)
+    tmp_file = '/tmp/' + md5sum(response_body) + '.' + file_ext
     with open(tmp_file, "wb") as binary_file: #Write bytes to a file
         binary_file.write(response_body)
 
     return tmp_file
 
-def S3Put(s3_client, file_name, bucket_name, object_name=None):
+def S3Put(s3_client, file_name, bucket_name, object_name=None, public_read=None):
     '''
     :param s3_client: Boto3 client object
     :param file_name: File to upload
     :param bucket_name: Bucket to upload to
     :param object_name: target filename in bucket, eg. elisa.jpg
+    :param public_read: If True switch public-read flag on for the object
     '''
 
     # If S3 object_name was not specified, use file_name
     if object_name is None:
         object_name = file_name
     try:
-        response = s3_client.upload_file(file_name, bucket_name, object_name)
+        if public_read:
+            response = s3_client.upload_file(
+                file_name, 
+                bucket_name, 
+                object_name,
+                ExtraArgs={'ACL': 'public-read'}
+                )    
+        else:
+            response = s3_client.upload_file(file_name, bucket_name, object_name)
     except ClientError as e:
         logging.error(e)
         return False
