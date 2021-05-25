@@ -56,6 +56,10 @@ def lambda_handler(event, context):
     Returns
     ------
     None
+
+
+    Scratchpad
+    Thumbnail local URL http://localhost:4566/ltd.noooner.dam.core.thumbnails/d7dcd8b8e2b35c19b42b81c6dfdc1280.JPG
     """
     
     try:
@@ -92,6 +96,7 @@ def lambda_handler(event, context):
     print(f'Image size after  thumbnail: {image.size}')
     image.save(original_file)
     head, tail = os.path.split(original_file) # read the original filename into tail
+    tail = tail.lower() # lower-case the filename for consistency (.JPG -> .jpg)
 
     # Send thumbnail to S3 bucket, set public-read flag on
     print('Sending ' + tail + ' (was ' + key + ') to ' + THUMBNAIL_BUCKET)
