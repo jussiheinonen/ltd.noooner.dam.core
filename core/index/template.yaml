@@ -22,6 +22,7 @@ Resources:
           DOWNLOAD_BUCKET: !Sub "ltd.noooner.dam.core.download.${AWS::StackName}"
           UPLOAD_BUCKET: !Sub "ltd.noooner.dam.core.upload.${AWS::StackName}"
           INDEX_TABLE: !Sub "ltd.noooner.dam.core.index.${AWS::StackName}"
+          THUMBNAIL_BUCKET: "ltd.noooner.dam.core.thumbnail.ltd-noooner-thumbdev"
       Policies:
         - DynamoDBWritePolicy:
             TableName: !Sub "ltd.noooner.dam.core.index.${AWS::StackName}"

@@ -11,8 +11,11 @@ IS_OFFLINE = os.environ.get('IS_OFFLINE')
 INDEX_TABLE = os.environ.get('INDEX_TABLE')
 UPLOAD_BUCKET = os.environ.get('UPLOAD_BUCKET')
 DOWNLOAD_BUCKET = os.environ.get('DOWNLOAD_BUCKET')
+THUMBNAIL_BUCKET = os.environ.get('THUMBNAIL_BUCKET')
 
 if IS_OFFLINE:
+    s3_endpoint = 'http://localhost:4566/'
+
     s3_client = boto3.client(
         's3',
         region_name = 'localhost',
@@ -30,6 +33,7 @@ if IS_OFFLINE:
     )
 
 else:
+    s3_endpoint = 'https://s3-eu-west-1.amazonaws.com/'
     s3_client = boto3.client('s3')
     ddb_client = boto3.client('dynamodb')
 
@@ -79,12 +83,16 @@ def lambda_handler(event, context):
 
     # Get the object from the event and show its content type
     
-    if variableIsNone(INDEX_TABLE):
+    if not INDEX_TABLE:
         print('Environment variable INDEX_TABLE not set')
         return None
-    elif variableIsNone(DOWNLOAD_BUCKET):
+    if not DOWNLOAD_BUCKET:
         print('Environment variable DOWNLOAD_BUCKET not set')
         return None
+    
+    if not THUMBNAIL_BUCKET:
+        print('Environment variable THUMBNAIL_BUCKET not set. Exit and return None.')
+        return None        
 
 
     upload_bucket = event['Records'][0]['s3']['bucket']['name']
@@ -120,11 +128,18 @@ def lambda_handler(event, context):
             ]
 
         upload_time_epoch = int(time.time())
-
+        checksum = md5sum(response_body)
+        # Resolve the file extension and lower-case it for use in thumbnail_url
+        lst_file_ext = key.split('.')
+        file_ext = lst_file_ext[-1].lower()
+        #print(f'File extension in lower-case {file_ext}')
+        thumbnail_url = s3_endpoint + THUMBNAIL_BUCKET + '/' + checksum + '.' + file_ext 
+        
         dict_info = {
-            'md5': md5sum(response_body),
+            'md5': checksum,
             'original_filename': key,
-            'upload_time': upload_time_epoch
+            'upload_time': upload_time_epoch,
+            'thumbnail_url': thumbnail_url
             #'thumbnail_url': 'https://s3-eu-west-1.amazonaws.com/ltd.noooner.dam.core.thumbnails/00000000000000000000000000000000.jpg'
         }
         for field in fields:
