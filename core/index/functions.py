@@ -120,8 +120,7 @@ def S3Get(s3_client, file_name, bucket_name):
 
     Returns
     ------
-    File object
-
+    File object on the disk in /tmp, filename format md5sum.ext
     '''
 
     try:
@@ -136,7 +135,7 @@ def S3Get(s3_client, file_name, bucket_name):
     lst_file_ext = file_name.split('.')
     file_ext = lst_file_ext[-1]
     response_body = response['Body'].read() # StreamingBody to bytes
-    tmp_file = '/tmp/' + md5sum(response_body) + '.' + file_ext
+    tmp_file = '/tmp/' + md5sum(response_body) + '.' + file_ext.lower()
     with open(tmp_file, "wb") as binary_file: #Write bytes to a file
         binary_file.write(response_body)
 
