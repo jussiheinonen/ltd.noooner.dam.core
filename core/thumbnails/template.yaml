@@ -6,7 +6,8 @@ Description: >
   SAM Template for thumbnails
 
   BUILD: sudo /home/jussi/.local/bin/sam build
-  DEPLOY: sudo /home/jussi/.local/bin/sam deploy --guided
+  DEPLOY (init): sudo /home/jussi/.local/bin/sam deploy --guided
+  DEPLOY (cd): sudo /home/jussi/.local/bin/sam deploy
   DESTROY: aws cloudformation delete-stack --stack-name ltd-noooner-thumbdev
 
   NOTE! Event configuration is manually done for now due to reason because Download bucket lives in separate SAM //github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
