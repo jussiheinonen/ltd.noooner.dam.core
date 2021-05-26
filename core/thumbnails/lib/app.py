@@ -2,6 +2,7 @@ import json, boto3, os
 from pprint import pprint
 from functions import *
 from PIL import Image
+import urllib.parse
 
 IS_OFFLINE = os.environ.get('IS_OFFLINE')
 THUMBNAIL_BUCKET = os.environ.get('THUMBNAIL_BUCKET')
@@ -64,7 +65,7 @@ def lambda_handler(event, context):
     
     try:
         bucket = event['Records'][0]['s3']['bucket']['name']
-        key =event['Records'][0]['s3']['object']['key']
+        key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'], encoding='utf-8')
         print('Received event from bucket ' + bucket + ' for file ' + key)
     except:
         print('OOOPS! Failed to parse event. Here is what was received: ')
