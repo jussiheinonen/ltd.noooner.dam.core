@@ -30,7 +30,7 @@ with open(tmp_file, "wb") as binary_file: #Write bytes to file so that IPTCInfo 
 
 
 image = Image.open(open(filename, 'rb')) # Open the image
-config = ('-l eng --oem 1 --psm 3') # Create configuration set as seen in https://www.analyticsvidhya.com/blog/2020/05/build-your-own-ocr-google-tesseract-opencv/
+config = ('-l eng --oem 1 --psm 1') # Create configuration set as seen in https://www.analyticsvidhya.com/blog/2020/05/build-your-own-ocr-google-tesseract-opencv/
 text = pytesseract.image_to_string(image, config=config)
 text = text.split('\n') # print text
 print(text)
