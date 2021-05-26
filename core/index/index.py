@@ -102,6 +102,17 @@ def lambda_handler(event, context):
     try:
         response = s3_client.get_object(Bucket=upload_bucket, Key=key)
         response_body = response['Body'].read() # StreamingBody to bytes
+
+        file_size = len(response_body)
+        if file_size < 1:
+            print(f'OOOPS! File size is {file_size} bytes. Object rejected.')
+            try:
+                print('Deleting ' + key + ' from ' + upload_bucket)
+                S3Del(s3_client, key, upload_bucket)
+            except:
+                print('Failed to delete ' + key + ' from ' + upload_bucket)
+            return None
+
         tmp_file = '/tmp/' + md5sum(response_body)
 
         with open(tmp_file, "wb") as binary_file: #Write bytes to file so that IPTCInfo class can access it
