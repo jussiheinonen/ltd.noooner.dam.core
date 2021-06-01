@@ -143,7 +143,11 @@ $ aws s3 ls s3://${BUCKET_NAME} --endpoint-url http://localhost:4566
 2021-02-24 14:44:00        155 package.json
 ```
 
+### Copy objects between buckets
 
+```
+$ aws s3 sync s3://ltd.noooner.dam.core.download.ltd-noooner-index s3://ltd.noooner.dam.core.upload.ltd-noooner-index
+```
 
 # Credits & ThankU's
 * [Localstack](https://github.com/localstack/localstack) test/mocking framework for developing Cloud applications
