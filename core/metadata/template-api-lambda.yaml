@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SAM template for METADATA endpoint
+  1ST DEPLOY: sam build -t template-api-lambda.yaml && sam deploy --guided -t template-api-lambda.yaml
+  CI DEPLOY: sam build -t template-api-lambda.yaml && sam deploy -t template-api-lambda.yaml
+  DESTROY: aws cloudformation delete-stack --stack-name ltd-noooner-metadata --region eu-west-1
+
+Resources:
+  # HTTP API
+  MetadataApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowMethods:
+          - "DELETE"
+          - "GET"
+          - "PATCH"
+          - "POST"
+          - "PUT"
+        AllowHeaders:
+          - "*"   
+        AllowOrigins: 
+          - "*"      
+
+  ## Lambda function
+  MetadataFunction:
+    # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lib/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Timeout: 10
+      MemorySize: 128
+      Environment:
+        Variables:
+          INDEX_TABLE: "ltd.noooner.dam.core.index.ltd-noooner-index"
+      # SAM Policy template list https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: "ltd.noooner.dam.core.index.ltd-noooner-index"
+      Events: # TODO: Investigate how to consolidate the following events to avoid cut/paste duplication
+        MetadataDelete:
+          Type: HttpApi
+          Properties:
+            Path: /metadata
+            Method: delete
+            ApiId: !Ref MetadataApi
+        MetadataGet:
+          Type: HttpApi
+          Properties:
+            Path: /metadata
+            Method: get
+            ApiId: !Ref MetadataApi
+        MetadataPatch:
+          Type: HttpApi
+          Properties:
+            Path: /metadata
+            Method: patch
+            ApiId: !Ref MetadataApi
+        MetadataPost:
+          Type: HttpApi
+          Properties:
+            Path: /metadata
+            Method: post
+            ApiId: !Ref MetadataApi
+        MetadataPut:
+          Type: HttpApi
+          Properties:
+            Path: /metadata
+            Method: put
+            ApiId: !Ref MetadataApi
+
+## Take a note of the outputs for deploying the workflow templates in this sample application
+Outputs:
+  APIendpoint:
+    Description: "HTTP API endpoint URL for Metadata"
+    Value: !Sub "https://${MetadataApi}.execute-api.${AWS::Region}.amazonaws.com/metadata"
+  DestroyStack:
+    Description: "Delete stack command"
+    Value: !Sub "aws cloudformation delete-stack --stack-name ${AWS::StackName} --region ${AWS::Region}"
