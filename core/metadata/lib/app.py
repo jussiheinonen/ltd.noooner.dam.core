@@ -1,9 +1,6 @@
 import boto3, os, json, decimal
 from botocore.exceptions import ClientError
 from pprint import pprint
-from boto3.dynamodb.types import TypeDeserializer
-
-deserializer = TypeDeserializer()
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -17,8 +14,7 @@ IS_OFFLINE = os.environ.get('IS_OFFLINE')
 INDEX_TABLE = os.environ.get('INDEX_TABLE')
 
 if IS_OFFLINE:
-    #ddb_client = boto3.resource(
-    ddb_client = boto3.client(        
+    ddb_client = boto3.resource(
         'dynamodb',
         region_name = 'localhost',
         endpoint_url = 'http://localhost:4566',
@@ -26,26 +22,7 @@ if IS_OFFLINE:
         aws_secret_access_key = 'whatever'
     )
 else:
-    #ddb_client = boto3.resource('dynamodb')
-    ddb_client = boto3.client('dynamodb')
-
-def get_metadata_ddb_client(id, ddb_client, ddb_table):
-    response = ddb_client.get_item(
-        TableName=ddb_table,
-        Key={ 
-            'id': {
-                'S': id
-            }
-         })
-
-    deserialised = {k: deserializer.deserialize(v) for k, v in response.get("Item").items()}
-    
-    #for key, value in deserialised.items():
-    #    print('Key ' + key + ' is type of ' + str(type(value)))
-
-    
-    #return None
-    return json.dumps(deserialised, cls=SetEncoder)
+    ddb_client = boto3.resource('dynamodb')
 
 def get_metadata_ddb_table(id, ddb_client, ddb_table):
     
@@ -71,5 +48,5 @@ def lambda_handler(event, context):
 
     id = event['queryStringParameters']['id']
     print(f"Getting metadata for image ID {id}")
-    response = get_metadata_ddb_client(id, ddb_client, INDEX_TABLE)
+    response = get_metadata_ddb_table(id, ddb_client, INDEX_TABLE)
     return response

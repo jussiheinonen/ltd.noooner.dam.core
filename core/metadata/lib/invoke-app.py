@@ -90,6 +90,6 @@ def mockAPITrigger(id, method):
 payload = mockAPITrigger(id, method)
 
 results = lambda_handler(payload, None)
-
+print('lambda_handler returned object type ' + str(type(results)))
 print('HERE IS WHAT WE GOT:')
 pprint(results)
