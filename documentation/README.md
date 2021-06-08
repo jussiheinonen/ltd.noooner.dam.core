@@ -8,6 +8,12 @@ Documentation lives in the file [documentation / openapi.yaml](https://github.co
 
 Documentation is limited to publicly accessible endpoints in ltd.noooner.dam.core stack. 
 
+Endpoints have the following names
+
+ * Presign  - issuing pre-signed URLs for uploads and downloads
+ * Search   - searching images
+ * Metadata - requesting image metadata
+
 ### Presign API  
 ### ...for Uploading and Downloading files
 Endpoint URL: https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com
@@ -82,7 +88,9 @@ The easiest way to experiment with download functionality is via Search API. Sea
 
 ### Search API
 #### ...for Searching images
-Endpoint URL: https://yibz2ntz2d.execute-api.eu-west-1.amazonaws.com
+Endpoint URL: https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com
+
+(alternative URL: https://yibz2ntz2d.execute-api.eu-west-1.amazonaws.com)
 
 ##### Description
 Search API is used for searching image metadata. Request parameter `q=` specifices a list of keywords that is compared to image metadata. Images matching keywords are included in the results set that is returned to the client. 
@@ -92,7 +100,22 @@ Supported method is GET.
 
 ##### Example Search API request
 
-[https://yibz2ntz2d.execute-api.eu-west-1.amazonaws.com/search?q=real+madrid+champions+league+football](https://yibz2ntz2d.execute-api.eu-west-1.amazonaws.com/search?q=real+madrid+champions+league+football)
+[https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/search?q=real+madrid+champions+league+football](https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/search?q=real+madrid+champions+league+football)
+
+### Metadata API
+#### ...for requesting all metadata of an image
+Endpoint URL: https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com
+
+##### Description
+Search results only include partial metadata with image ID. 
+Using image ID one can request for all metadata that is associated with the image. 
+
+##### HTTP methods
+Supported method is GET. 
+
+##### Example Search API request
+[https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/metadata?id=d7dcd8b8e2b35c19b42b81c6dfdc1280](https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/metadata?id=d7dcd8b8e2b35c19b42b81c6dfdc1280)
+
 
 ## OpenAPI plug-in for VS Code
 
@@ -102,6 +125,6 @@ One can use any text editor to view the documentation but better experience can 
 
 Preview mode can be used to make requests to endpoints. 
 
-At this time Presign and Search endpoints uses inidividual URLs which you can select from Servers drop-down menu.
+All 3 APIs are accessible via endpoint https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com
 
 ![VS Code OpenAPI preview](https://raw.githubusercontent.com/jussiheinonen/ltd.noooner.dam.core/main/documentation/assets/vscode-openapi-preview.png "VS Code OpenAPI preview")
