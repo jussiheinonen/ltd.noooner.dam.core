@@ -20,6 +20,64 @@ def createDDBObject(dict):
         ddb_item[key] = type_value
     return ddb_item
 
+def ddb_key_exists(key: str, ddb_client, ddb_table: str):
+    '''
+    :param key: Primary key (str) for item to look up
+    :param ddb_client: Boto3 DynamoDB client object
+    :param ddb_table: Name (str) of the DynamoDB table to query
+    '''
+
+    table = ddb_client.Table(ddb_table)
+
+    try:
+        print(f'Calling table.get_item for key {key}')
+        response = table.get_item(Key={'id': key})
+    except ClientError as e:
+        print('OOOPS! Failed calling table.get_item')
+        return e.response['Error']['Message']
+    
+    try:
+        response['Item']
+        return True
+    except: 
+        return False
+
+def ddb_update_item(ddb_key, ddb_client, ddb_table, payload):
+    '''
+    :param key: Primary key (str) for item to look up
+    :param ddb_client: Boto3 DynamoDB client object
+    :param ddb_table: Name (str) of the DynamoDB table to query
+    :param payload: key and value of the DynamoDB object to update
+    '''
+
+    table = ddb_client.Table(ddb_table)
+    dict_of_updates = {} # Storing update results in this dictionary    
+    if type(payload) == str:
+        # make string type body a dict
+        payload = json.loads(payload)
+
+    for key, value in payload.items():
+        print(f'Attempting to update key {key} with value {value}')
+        update_expression="set " + key + "=:k"
+        
+        try:
+            print(f'Calling table.update_item for key {ddb_key}')
+            response = table.update_item(
+                Key={
+                    'id': ddb_key
+                    },
+                    UpdateExpression=update_expression,
+                    ExpressionAttributeValues={ ':k': value },
+                    ReturnValues="UPDATED_NEW"                
+                )
+            dict_of_updates.update(response['Attributes'])   
+
+        except ClientError as e:
+            print('OOOPS! Failed calling table.update_item')
+            return e.response['Error']['Message']
+
+    return dict_of_updates
+
 def isTypeOf(value):
     # data types https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.put_item
 
@@ -177,6 +235,11 @@ def S3ObjectExists(s3_clien, bucket_name, file_name):
         return True
     except:
         return False
+
+def unimplementedHttpMethod(http_method):
+    message = "HTTP method " + str(http_method) + " not implemented"
+    r_code = 405
+    return { "response": message, "response_code": r_code }
 
 def variableIsNone(var_name):
     if var_name == None:
