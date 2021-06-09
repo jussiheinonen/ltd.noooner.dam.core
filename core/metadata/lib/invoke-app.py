@@ -6,13 +6,15 @@ import os, boto3, argparse
 
 parser = argparse.ArgumentParser(description='Image metadata processor')
 parser.add_argument('-i', '--id', dest='id', required=True, help="Image ID to process, eg. a451196f4a1317e5133ec57d29b8ecf1")
-parser.add_argument('-m', '--method', dest='method', default='GET', help="HTTP methode, eg. GET, PUT, POST")
+parser.add_argument('-m', '--method', dest='method', default='GET', help="HTTP method, eg. GET, PUT, POST")
+parser.add_argument('-d', '--data', dest='data', default='{ "key": "no data"}', help="Data in JSON document format")
 args = parser.parse_args()
 
 id = args.id
 method = args.method
+data = args.data
 
-def mockAPITrigger(id, method):
+def mockAPITrigger(id, method, data):
     
     #Payload format https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html
     event = dict(
@@ -74,7 +76,7 @@ def mockAPITrigger(id, method):
                         "time": "12/Mar/2020:19:03:58 +0000",
                         "timeEpoch": 1583348638390
                     },
-                    "body": "Hello from Lambda",
+                    "body": data,
                     "pathParameters": {
                         "parameter1": "value1"
                     },
@@ -87,9 +89,9 @@ def mockAPITrigger(id, method):
     )
     return event
 
-payload = mockAPITrigger(id, method)
+payload = mockAPITrigger(id, method, data)
 
 results = lambda_handler(payload, None)
-print('lambda_handler returned object type ' + str(type(results)))
+#print('lambda_handler returned object type ' + str(type(results)))
 print('HERE IS WHAT WE GOT:')
 pprint(results)

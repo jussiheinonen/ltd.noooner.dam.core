@@ -1,6 +1,7 @@
 import boto3, os, json, decimal
 from botocore.exceptions import ClientError
 from pprint import pprint
+from functions import *
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -29,7 +30,7 @@ def get_metadata_ddb_table(id, ddb_client, ddb_table):
     table = ddb_client.Table(ddb_table)
 
     try:
-        print('Calling table.get_item')
+        print(f'Calling table.get_item for key {id}')
         response = table.get_item(Key={'id': id})
     except ClientError as e:
         print('OOOPS! Failed calling table.get_item')
@@ -43,10 +44,46 @@ def get_metadata_ddb_table(id, ddb_client, ddb_table):
         print('Returning not_found_object response to lambda_handler')
         return not_found_object
 
-
 def lambda_handler(event, context):
 
-    id = event['queryStringParameters']['id']
-    print(f"Getting metadata for image ID {id}")
-    response = get_metadata_ddb_table(id, ddb_client, INDEX_TABLE)
+    ddb_key = event['queryStringParameters']['id']
+    print(f"Getting metadata for image ID {ddb_key}")
+    http_method = event['requestContext']['http']['method']
+    print(f"HTTP method is {http_method}")
+
+    if http_method == 'GET':
+        '''
+        ============
+        CURL EXAMPLE
+        ============
+        https://5xa8nazic2.execute-api.eu-west-1.amazonaws.com/metadata?id=520a1db1df5614bc9f8d89ab42a32561
+        '''
+        response = get_metadata_ddb_table(ddb_key, ddb_client, INDEX_TABLE)
+
+    elif http_method == 'PUT':
+        '''
+        ============
+        CURL EXAMPLE
+        ============
+        curl -X 'PUT' \
+        'https://5xa8nazic2.execute-api.eu-west-1.amazonaws.com/metadata?id=520a1db1df5614bc9f8d89ab42a32561' \
+        -d '{ "n_search": ["train", "timetable"] }' \
+        -H "Content-Type: application/json" 
+        '''
+
+        if ddb_key_exists(ddb_key, ddb_client, INDEX_TABLE):          
+            try:
+                payload = event['body']
+                #print('Attempting to update data ' + payload)
+                response = ddb_update_item(ddb_key, ddb_client, INDEX_TABLE, payload)
+                
+            except:
+                print('Failed to find event body part')
+                response = { "error": "failed to get event body part"}
+        else:
+            return "Key " + ddb_key + " NOT found"
+            
+
+    elif http_method == 'POST':
+        response = unimplementedHttpMethod('POST')
     return response
