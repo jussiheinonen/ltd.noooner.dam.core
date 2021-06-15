@@ -1,4 +1,5 @@
-import json, boto3, os
+from copy import Error
+import json, boto3, os, time, requests
 from pprint import pprint
 from functions import *
 from PIL import Image
@@ -6,8 +7,10 @@ import urllib.parse
 
 IS_OFFLINE = os.environ.get('IS_OFFLINE')
 THUMBNAIL_BUCKET = os.environ.get('THUMBNAIL_BUCKET')
+METADATA_ENDPOINT_URL = os.environ.get('METADATA_ENDPOINT_URL')
 THUMBAIL_DIMENSIONS = os.environ.get('THUMBNAIL_DIMENSIONS') # Environment variable syntax THUMBAIL_DIMENSIONS="480,480"
 thumbnail_dimensions_defaults = 360,240
+thumbnail_bucket_url_base = "https://s3-eu-west-1.amazonaws.com/ltd.noooner.dam.core.thumbnail.ltd-noooner-thumbdev/"
 
 if not THUMBAIL_DIMENSIONS:
     print(f'No environment variable THUMBNAIL_DIMENSIONS. Using default {thumbnail_dimensions_defaults}')
@@ -32,6 +35,17 @@ if IS_OFFLINE:
     )
 else:
     s3_client = boto3.client('s3')
+
+def metadataUpdateItem(metadata_url, payload):
+    print('Attempting to update metadata. Endpoint: ' + metadata_url + ', Data: ' + str(payload) )
+    try:
+        #response = requests.put(metadata_url, data = json.dumps(payload))
+        requests.put(metadata_url, json = payload)
+        response = '{ "response": "metadata successfully updated" }'
+    except Error as e:
+        print('Failed to update metadata' + e)
+        response = "OOOPS! Failed to update metadata"
+    return response
 
 def lambda_handler(event, context):
     """
@@ -100,11 +114,33 @@ def lambda_handler(event, context):
     tail = tail.lower() # lower-case the filename for consistency (.JPG -> .jpg)
 
     # Send thumbnail to S3 bucket, set public-read flag on
-    print('Sending ' + tail + ' (was ' + key + ') to ' + THUMBNAIL_BUCKET)
-    S3Put(s3_client, original_file, THUMBNAIL_BUCKET, tail, True)
+    try: 
+        print('Sending ' + tail + ' (was ' + key + ') to ' + THUMBNAIL_BUCKET)
+        S3Put(s3_client, original_file, THUMBNAIL_BUCKET, tail, True)
+
+    except Error as e:
+        print('Failed to send ' + tail + ' to bucket' + THUMBNAIL_BUCKET + ': ' + e)
+        return e
+        
+
+    # Update metadata
+    try:
+        tmp_list = tail.split(".")
+        ddb_key = tmp_list[0]
+        metadata_url = METADATA_ENDPOINT_URL + '?id=' + ddb_key
+        print('Sending update request to metadata endpoint ' + metadata_url)
+        payload = {
+            "thumbnail_url": thumbnail_bucket_url_base + tail,
+            "updated_by": "thumbnails function" 
+        }
+        print('Update payload ' + str(payload))
+        response = metadataUpdateItem(metadata_url, payload)
+    except Error as e:
+        print('Failed to update metadata: ' + e)
+
 
     # Tidy up file system
     if os.path.exists(original_file):
         os.remove(original_file)
 
-    return None
+    return response

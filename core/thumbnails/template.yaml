@@ -7,7 +7,7 @@ Description: >
 
   BUILD: sudo /home/jussi/.local/bin/sam build
   DEPLOY (init): sudo /home/jussi/.local/bin/sam deploy --guided
-  DEPLOY (cd): sudo /home/jussi/.local/bin/sam deploy
+  DEPLOY (cd): sudo /home/jussi/.local/bin/sam build && sudo /home/jussi/.local/bin/sam deploy
   DESTROY: aws cloudformation delete-stack --stack-name ltd-noooner-thumbdev
 
   NOTE! Event configuration is manually done for now due to reason because Download bucket lives in separate SAM //github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
@@ -21,6 +21,7 @@ Globals:
     Environment:
       Variables:
         THUMBNAIL_BUCKET: !Sub "ltd.noooner.dam.core.thumbnail.${AWS::StackName}"
+        METADATA_ENDPOINT_URL: https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/metadata
 
 Resources:
   ThumbnailFunction:
