@@ -2,6 +2,7 @@ import boto3, os, json, decimal
 from botocore.exceptions import ClientError
 from pprint import pprint
 from functions import *
+from copy import Error
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -73,12 +74,18 @@ def lambda_handler(event, context):
 
         if ddb_key_exists(ddb_key, ddb_client, INDEX_TABLE):          
             try:
-                payload = event['body']
-                #print('Attempting to update data ' + payload)
+                payload = json.loads(event['body'])
+                update_epoch = str(event['requestContext']['timeEpoch'])
+                updated_datetime = str(event['requestContext']['time'])
+                payload['update_epoch'] = update_epoch
+                payload['update_datetime'] = updated_datetime
+                print('Attempting to update data ' + str(payload))
+                
                 response = ddb_update_item(ddb_key, ddb_client, INDEX_TABLE, payload)
                 
-            except:
-                print('Failed to find event body part')
+            except Error as e:
+                print('Failed to find event body part ' + e )
+                pprint(event)
                 response = { "error": "failed to get event body part"}
         else:
             return "Key " + ddb_key + " NOT found"

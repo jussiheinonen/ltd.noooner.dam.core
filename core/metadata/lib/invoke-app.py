@@ -7,7 +7,7 @@ import os, boto3, argparse
 parser = argparse.ArgumentParser(description='Image metadata processor')
 parser.add_argument('-i', '--id', dest='id', required=True, help="Image ID to process, eg. a451196f4a1317e5133ec57d29b8ecf1")
 parser.add_argument('-m', '--method', dest='method', default='GET', help="HTTP method, eg. GET, PUT, POST")
-parser.add_argument('-d', '--data', dest='data', default='{ "key": "no data"}', help="Data in JSON document format")
+parser.add_argument('-d', '--data', dest='data', default={}, help="Data in JSON document format")
 args = parser.parse_args()
 
 id = args.id
