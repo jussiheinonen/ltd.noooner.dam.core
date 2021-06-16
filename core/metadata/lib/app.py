@@ -88,7 +88,8 @@ def lambda_handler(event, context):
                 pprint(event)
                 response = { "error": "failed to get event body part"}
         else:
-            return "Key " + ddb_key + " NOT found"
+            message = "No item " + ddb_key
+            response = { "response" :  message }
             
 
     elif http_method == 'POST':
