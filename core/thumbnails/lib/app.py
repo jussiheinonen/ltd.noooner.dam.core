@@ -1,5 +1,5 @@
 from copy import Error
-import json, boto3, os, time, requests
+import json, boto3, os, sys, requests
 from pprint import pprint
 from functions import *
 from PIL import Image
@@ -11,6 +11,10 @@ METADATA_ENDPOINT_URL = os.environ.get('METADATA_ENDPOINT_URL')
 THUMBAIL_DIMENSIONS = os.environ.get('THUMBNAIL_DIMENSIONS') # Environment variable syntax THUMBAIL_DIMENSIONS="480,480"
 thumbnail_dimensions_defaults = 360,240
 thumbnail_bucket_url_base = "https://s3-eu-west-1.amazonaws.com/ltd.noooner.dam.core.thumbnail.ltd-noooner-thumbdev/"
+
+if not THUMBNAIL_BUCKET:
+    print('OOOPS! THUMBNAIL_BUCKET environment variable unset. Exit 1.' )
+    sys.exit(1)
 
 if not THUMBAIL_DIMENSIONS:
     print(f'No environment variable THUMBNAIL_DIMENSIONS. Using default {thumbnail_dimensions_defaults}')
@@ -39,12 +43,14 @@ else:
 def metadataUpdateItem(metadata_url, payload):
     print('Attempting to update metadata. Endpoint: ' + metadata_url + ', Data: ' + str(payload) )
     try:
-        #response = requests.put(metadata_url, data = json.dumps(payload))
-        requests.put(metadata_url, json = payload)
-        response = '{ "response": "metadata successfully updated" }'
+        r = requests.put(metadata_url, json = payload)
+        #r.decode("utf-8")
+        response = r.content
+        response = response.decode("utf-8")
     except Error as e:
         print('Failed to update metadata' + e)
-        response = "OOOPS! Failed to update metadata"
+        message = 'Failed to update metadata' + e
+        response = { "response": message }
     return response
 
 def lambda_handler(event, context):
@@ -89,7 +95,6 @@ def lambda_handler(event, context):
     try:
         print(f'Attempting to get file {key}')
         original_file = S3Get(s3_client, key, bucket)
-        #print('original_file value is ' + str(original_file))
         if original_file is False:
             print(f'OOOPS! File {key} not found in the bucket {bucket}. Exit and return None.')
             return None
@@ -136,7 +141,8 @@ def lambda_handler(event, context):
         print('Update payload ' + str(payload))
         response = metadataUpdateItem(metadata_url, payload)
     except Error as e:
-        print('Failed to update metadata: ' + e)
+        message = "Failed to update metadata: " + e
+        response = { "response": message }
 
 
     # Tidy up file system
