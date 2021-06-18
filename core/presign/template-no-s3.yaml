@@ -12,8 +12,12 @@ Resources:
     Properties:
       CorsConfiguration:
         AllowMethods:
-          - "POST"
+          - "DELETE"
           - "GET"
+          - "PATCH"
+          - "POST"
+          - "PUT"
+          - "OPTIONS"
         AllowHeaders:
           - "*"   
         AllowOrigins: 
