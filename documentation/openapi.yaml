@@ -107,20 +107,51 @@ paths:
           name: id
           schema:
             type: string
-          description: Get object metadata by ID. Example request /metadata?id=d7dcd8b8e2b35c19b42b81c6dfdc1280
+          description: Get object metadata by ID. Example GET request /metadata?id=dade22aedae35e8052424064f44c36aa
       responses:
         '200':
           description: Metadata document in JSON format
           content:
             'application/json':
               schema:
-                $ref: '#/components/schemas/MetadataResponse'
+                $ref: '#/components/schemas/MetadataGetResponse'
         '404':
           description: NOT FOUND
           content:
             'application/json':
               schema:
-                type: string                                
+                type: string
+    put:
+      summary: Update object metadata by ID
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: string
+          description: Specify image by ID to update. Example PUT request /metadata?id=d7dcd8b8e2b35c19b42b81c6dfdc1280
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                headline:
+                  type: string
+      responses:
+        '200':
+          description: Metadata snippet corresponding to updated data.             
+          content:
+            'application/json':
+              schema:
+                type: string
+        '404':
+          description: Key xyz NOT found
+          content:
+            'application/json':
+              schema:
+                type: string            
+
 
 # Descriptions of common components
 components:
@@ -158,8 +189,13 @@ components:
               format: date-time
               description: Date and time when image was uploaded to the system
               example: "2021-04-20 13:19:06"
+            metadata_url:
+              type: string
+              format: url
+              description: URL to request full object metadata
+              example: "https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/metadata?id=60a141a2bb7fe89911d81d5102e6aea8"
             thumbnail_url:
-              type: stringft.com/
+              type: string
               format: url
               description: URL to preview image (small size) to display with search result
               example: https://s3-eu-west-1.amazonaws.com/ltd.noooner.dam.core.thumbnails/00000000000000000000000000000000.jpg
@@ -173,7 +209,7 @@ components:
               type: integer
               description: Relevance score. Higher number is considered more relevant than lower number.
               example: 2
-    MetadataResponse:
+    MetadataGetResponse:
       type: object
       properties:        
         id:
@@ -213,4 +249,4 @@ components:
         - original_filename
         - thumbnail_url
         - upload_time
-
+ 
