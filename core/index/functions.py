@@ -32,14 +32,16 @@ def ddb_key_exists(key: str, ddb_client, ddb_table: str):
     try:
         print(f'Calling table.get_item for key {key}')
         response = table.get_item(Key={'id': key})
+        #pprint(response)
     except ClientError as e:
         print('OOOPS! Failed calling table.get_item')
         return e.response['Error']['Message']
     
-    try:
-        response['Item']
+    if 'Item' in response:
+        print('ddb_key_exists returning True')
         return True
-    except: 
+    else:
+        print('ddb_key_exists returning False')
         return False
 
 def ddb_update_item(ddb_key, ddb_client, ddb_table, payload):
