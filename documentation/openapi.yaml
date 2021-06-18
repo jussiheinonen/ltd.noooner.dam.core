@@ -11,7 +11,8 @@ info:
 servers:
   - url: https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com
     description: Default endpoint, integrates with Presign, Search and Metadata endpoints
-
+  - url: https://5xa8nazic2.execute-api.eu-west-1.amazonaws.com
+    description: Metadata endpoint for PUT (update) requests
 paths:
   /presign:
     get:
@@ -135,23 +136,33 @@ paths:
           application/json:
             schema:
               type: object
-              properties:
-                headline:
-                  type: string
       responses:
         '200':
           description: Metadata snippet corresponding to updated data.             
           content:
             'application/json':
               schema:
-                type: string
+                $ref: '#/components/schemas/MetadataPutResponse'
         '404':
           description: Key xyz NOT found
           content:
             'application/json':
               schema:
-                type: string            
-
+                type: object
+        '405':
+          description: HTTP method not implemented
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+                    description: Error message
+                    example: HTTP method OPTIONS not implemented
+                  response_code:
+                    type: integer
+                    example: 405
 
 # Descriptions of common components
 components:
@@ -250,3 +261,19 @@ components:
         - thumbnail_url
         - upload_time
  
+    MetadataPutResponse:
+      type: object
+      properties:        
+        headline:
+          type: string
+          description: Updated headline property in metadata
+          example: Information board for train departure time
+        update_epoch:
+          type: string
+          description: EPOCH time of the update
+          example: 1624011639182
+        update_datetime:
+          type: string
+          description: Date, time and timezone of the update
+          example: 18/Jun/2021:10:20:39 +0000
+
