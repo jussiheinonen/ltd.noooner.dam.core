@@ -94,4 +94,6 @@ def lambda_handler(event, context):
 
     elif http_method == 'POST':
         response = unimplementedHttpMethod('POST')
+    elif http_method == 'OPTIONS':
+        response = unimplementedHttpMethod('OPTIONS')
     return response
