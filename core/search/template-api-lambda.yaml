@@ -33,6 +33,7 @@ Resources:
         Variables:
           INDEX_TABLE: "ltd.noooner.dam.core.index.ltd-noooner-index"
           PRESIGN_ENDPOINT_URL: "https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/presign"
+          METADATA_ENDPOINT_URL: "https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/metadata"
           THUMBNAIL_BUCKET: "ltd.noooner.dam.core.thumbnails"
       # SAM Policy template list https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html
       Policies:

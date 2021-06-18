@@ -5,6 +5,7 @@ import boto3, json, os, time, re
 IS_OFFLINE = os.environ.get('IS_OFFLINE')
 INDEX_TABLE = os.environ.get('INDEX_TABLE')
 PRESIGN_ENDPOINT_URL = os.environ.get('PRESIGN_ENDPOINT_URL')
+METADATA_ENDPOINT_URL = os.environ.get('METADATA_ENDPOINT_URL')
 THUMBNAIL_BUCKET = os.environ.get('THUMBNAIL_BUCKET')
 PLACEHOLDER_THUMBNAIL_URL = 'https://s3-eu-west-1.amazonaws.com/' + THUMBNAIL_BUCKET + '/00000000000000000000000000000000.jpg'
 
@@ -80,21 +81,37 @@ def get_metadata(item):
     org_file = item['original_filename']['S']
     epoch_upload_time = int(item['upload_time']['N'])
     upload_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(epoch_upload_time))
+    
+    # Workout thumbnail url
     try: 
         thumbnail_url =  item['thumbnail_url']['S']
-        print('thumbnail_url in metadata')
+        #print('thumbnail_url in metadata')
     except:
         thumbnail_url = PLACEHOLDER_THUMBNAIL_URL
         #print('thumbnail_url not in metadata, using placeholder')
+    
+    # Construct Presign URL for object download
     if PRESIGN_ENDPOINT_URL:
         get_download_url = PRESIGN_ENDPOINT_URL + '?filename=' + org_file + '&action=get_object'
     else:
+        print('OOOPS! Unable to construct Presign URL for an object. PRESIGN_ENDPOINT_URL unset.')
         get_download_url = '///UNKONWN_PRESIGN_ENDPOINT_URL' + '?filename=' + org_file + '&action=get_object'
+
+    # Constructing metadata URL for full object metadata
+    if METADATA_ENDPOINT_URL:
+        metadata_url = METADATA_ENDPOINT_URL + '?id=' + item['id']['S']
+    else:
+        message = 'OOOPS! Unable to construct Metadata URL for an object. METADATA_ENDPOINT_URL unset.'
+        print(message)
+        metadata_url = message
+
     metadata_dict = {
         "get_download_url": get_download_url,
         "headline": headline,
         "upload_time": upload_time,
+        "metadata_url": metadata_url,
         "thumbnail_url": thumbnail_url
+
     }
 
     return(metadata_dict)
