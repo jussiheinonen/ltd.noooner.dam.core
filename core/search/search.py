@@ -1,6 +1,8 @@
 from functions import *
 from pprint import pprint
 import boto3, json, os, time, re
+from collections import OrderedDict
+
 
 IS_OFFLINE = os.environ.get('IS_OFFLINE')
 INDEX_TABLE = os.environ.get('INDEX_TABLE')
@@ -165,14 +167,49 @@ def find_ids_per_keyword(results):
             id = item['id']['S']
             id_to_keyword.setdefault(id, []).append(key) # Solution provided by Paul Panzer in https://stackoverflow.com/questions/43060655/update-values-of-a-list-of-dictionaries-in-python
             id_to_metadata[id] = get_metadata(item)
-    
+
+    #print('id_to_keyword is ' + str(id_to_keyword))
+
     # Merge id_to_metadata and id_to_keyword
     for id, keywords in id_to_keyword.items():
+
+        #print(f'ID {id} matches keywords {keywords}')
         id_to_metadata[id].update(matching_keywords=keywords, relevance=len(id_to_keyword[id]))
 
     return id_to_metadata
 
+def orderDictionaryByRelevance(input_dict):
+    '''
+    example_input = {
+        91fd6ab065fbd70729ac1397e3f07c07': { 'relevance': 4},
+        2cbacbd98d286e1ca44299fe93de5c67': { 'relevance': 3},
+        00311825c1adeb60ffff79d7e8a6ee88': { 'relevance': 6}
+        }
+    '''
 
+    '''
+    example_output = {
+        00311825c1adeb60ffff79d7e8a6ee88': { 'relevance': 6},
+        91fd6ab065fbd70729ac1397e3f07c07': { 'relevance': 4},
+        2cbacbd98d286e1ca44299fe93de5c67': { 'relevance': 3}
+        }
+    '''
+
+    unordered_dictionary = {}
+    ordered_dictionary = {}
+
+    for id, value in input_dict.items():
+        rel = value['relevance']
+        #print(f'{id}: {rel}')
+        unordered_dictionary.setdefault(rel, []).append(id)
+
+    tmp_dict_of_ids = dict(OrderedDict(sorted(unordered_dictionary.items(), reverse=True)))
+    for key, value in tmp_dict_of_ids.items():
+        for id in value:
+            ordered_dictionary[id] = input_dict[id]
+
+    #pprint(ordered_dictionary, sort_dicts=False)
+    return ordered_dictionary
 
 def lambda_handler(event, context):
     params = event['queryStringParameters']['q']
@@ -190,6 +227,13 @@ def lambda_handler(event, context):
             response[word] = ddb_scan_a_word_in_field(ddb_client, INDEX_TABLE, word.lower(), 'n_search')
     
     results_json = find_ids_per_keyword(response)
-       
-    return results_json
 
+    try: # In case URL contains parameter sort_dicts=False returns results without ordering by relevance
+        if event['queryStringParameters']['sort_dicts'] == 'False':
+            ordered_dictionary = results_json
+        else:
+            ordered_dictionary = orderDictionaryByRelevance(results_json)
+    except:
+        ordered_dictionary = orderDictionaryByRelevance(results_json)
+
+    return ordered_dictionary

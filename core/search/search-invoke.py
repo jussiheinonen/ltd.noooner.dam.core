@@ -25,7 +25,8 @@ def mockAPITrigger(query_string_parameters = None, method = 'GET'):
                         "header2": "value1,value2"
                     },
                     "queryStringParameters": {
-                        "q": query
+                        "q": query,
+                        "sort_dicts": sort
                     },
                     "requestContext": {
                         "accountId": "123456789012",
@@ -118,10 +119,12 @@ def swapDictKeysAndValues(ids_per_keyword):
 parser = argparse.ArgumentParser(description='Search a record based on keyword')
 parser.add_argument('-w', '--word', dest='word', required=True, help="Keyword to search in DynamoDB")
 parser.add_argument('-m', '--method', dest='method', default='GET', help="HTTP method, eg. GET|POST")
+parser.add_argument('-s', '--sort_dicts', dest='sort', default='True', help="Sort search results, True or False")
 args = parser.parse_args()
 
 word = args.word
 method= args.method
+sort= args.sort
 
 '''
 results = mockSearchResults()
@@ -134,4 +137,5 @@ payload = mockAPITrigger(word, method)
 results = lambda_handler(payload, None)
 
 print('HERE IS WHAT WE GOT:')
-pprint(results)
+#print(str(results))
+pprint(results, sort_dicts=False)
