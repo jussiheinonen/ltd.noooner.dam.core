@@ -55,12 +55,20 @@ Resources:
             Resource: 
               - arn:aws:s3:::ltd.noooner.dam.core.download.ltd-noooner-index
       Events:
-        PresignAPI:
+        PresignAPIpost:
           Type: HttpApi
           Properties:
             Path: /presign
             Method: post
+              
             ApiId: !Ref MyApi  
+        PresignAPIget:
+          Type: HttpApi
+          Properties:
+            Path: /presign
+            Method: get  
+            ApiId: !Ref MyApi  
+
 
 ## Take a note of the outputs for deploying the workflow templates in this sample application
 Outputs:
