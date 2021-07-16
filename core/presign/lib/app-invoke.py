@@ -5,7 +5,7 @@ EXAMPLE GET REQUEST
 https://tm7do0vu9j.execute-api.eu-west-1.amazonaws.com/presign?filename=train01.jpg&action=get_object&expiration=500
 '''
 
-from app import lambda_handler
+from app import lambda_handler, default_expiration
 import argparse
     
 def mockS3Trigger(bucket, key):
@@ -116,7 +116,7 @@ parser = argparse.ArgumentParser(description='Generate Presign URL from either P
 parser.add_argument('-f', '--filename', dest='filename', required=True, help="Filename to generate URL for")
 parser.add_argument('-a', '--action', dest='action', required=True, help="put_object or get_object")
 parser.add_argument('-m', '--method', dest='method', default='GET', help="HTTP method, eg. GET|POST")
-parser.add_argument('-e', '--expiration', dest='expiration', default='300', help="URL expiry in seconds")
+parser.add_argument('-e', '--expiration', dest='expiration', default=default_expiration, help="URL expiry in seconds")
 args = parser.parse_args()
 
 filename = args.filename

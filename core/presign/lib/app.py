@@ -1,6 +1,13 @@
+from copy import Error
 import json, boto3, logging, os
 from pprint import pprint
 from botocore.exceptions import ClientError
+import mimetypes
+
+default_expiration = 600
+UPLOAD_BUCKET = os.environ.get('UPLOAD_BUCKET')
+DOWNLOAD_BUCKET = os.environ.get('DOWNLOAD_BUCKET')
+
 
 '''
 PARAMETERS
@@ -24,12 +31,17 @@ TESTING
         -d '{"action": "get_object", "filename": "AFP_8TL7YA.jpg"}')  
 '''
 
+def getContentTypeFromFileExtension(filename):
+    try: 
+        extension = '.' + os.path.splitext(filename)[1][1:].lower()
+        mimetypes.init()
+        return mimetypes.types_map[extension]        
+    except Error as e:
+        return 'OOOPS! ' + e
+    
 
 
 def lambda_handler(event, context):
-    default_expiration = 300
-    UPLOAD_BUCKET = os.environ.get('UPLOAD_BUCKET')
-    DOWNLOAD_BUCKET = os.environ.get('DOWNLOAD_BUCKET')
 
     if UPLOAD_BUCKET == None or DOWNLOAD_BUCKET == None:
         print('UPLOAD_BUCKET and DOWNLOAD_BUCKET environment variables unset')
@@ -61,8 +73,7 @@ def lambda_handler(event, context):
     else: 
         payload = event['body']
 
-    print('Contents of the payload is ' + str(payload))
-    #print('Payload type is ' + str(type(payload)))
+    print('Contents of the payload is ' + str(payload))    
     try:
         object_name = payload['filename']
     except ClientError as e:
@@ -73,8 +84,18 @@ def lambda_handler(event, context):
         action = payload['action']
         if action == "get_object":
             bucket_name = DOWNLOAD_BUCKET
+            params = {
+                'Bucket': bucket_name,
+                'Key': object_name
+                }
         elif action == "put_object":
-            bucket_name = UPLOAD_BUCKET
+            bucket_name = UPLOAD_BUCKET            
+            mime_type = getContentTypeFromFileExtension(filename)
+            params = {
+                'Bucket': bucket_name,
+                'Key': object_name,
+                'ContentType': mime_type 
+                }
         else:
             print('Invalid action ' + str(action) + '. Must be one of the get_object or put_object')
             return None    
@@ -89,8 +110,7 @@ def lambda_handler(event, context):
             
     try:
         response = s3_client.generate_presigned_url(action,
-                                                    Params={'Bucket': bucket_name,
-                                                            'Key': object_name},
+                                                    Params=params,
                                                     ExpiresIn=expiration)
     except ClientError as e:
         logging.error(e)
