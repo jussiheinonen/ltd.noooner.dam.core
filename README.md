@@ -6,7 +6,7 @@ Upload, Index, Search and Download endpoints
 
 Local dev environment consists of 2 components
 
-* [Wiren](https://github.com/localstack/localstack) front-end
+* [Wiren](https://github.com/jussiheinonen/wiren) front-end
 * [Localstack](https://github.com/localstack/localstack) backend
 
 ## Starting front-end
